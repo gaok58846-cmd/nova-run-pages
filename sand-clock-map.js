@@ -43,7 +43,63 @@ function render(ctx,state,width,height,theme,api){
   for(let i=0;i<CHECKPOINTS.length;i++){const cp=CHECKPOINTS[i],active=i<=state.checkpoint,y=floor+cp.y,color=active?'#d77850':'#8b7256';ctx.strokeStyle=color;ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(cp.x,y);ctx.lineTo(cp.x,y-45);ctx.stroke();polygon(ctx,[[cp.x,y-57],[cp.x+10,y-47],[cp.x,y-37],[cp.x-10,y-47]],color,active?'#fff0c7':'#6e5944')}
   for(const h of HAZARDS){ctx.fillStyle='#b94f37';for(let dx=0;dx<h.w;dx+=20)polygon(ctx,[[h.x+dx,floor+h.y+h.h],[h.x+dx+10,floor+h.y],[h.x+dx+20,floor+h.y+h.h]],'#b94f37','#ffcf89')}
   drawFinishGate(ctx,state,height,FINISH,{floorRatio:.82,primary:'#f0bd62',secondary:'#fff0c7',body:'#6d4c35',energy:'#d77850'});ctx.restore();
-  ctx.save();rounded(ctx,16,16,300,58,14,'rgba(50,43,35,.8)','rgba(240,189,98,.35)');ctx.fillStyle='#fff0c7';ctx.font='700 12px system-ui';ctx.fillText(`PHASE ${state.phase?'UMBRA':'SOL'}   ◇ ${state.collected.size}/4   ⚑ ${state.checkpoint+1}/6`,30,39);ctx.fillStyle=state.chaseActive?'#ef8c5e':'#f0bd62';ctx.fillText(state.chaseActive?'SAND SURGE — KEEP MOVING':'CLOCKWORK STABLE',30,59);ctx.restore();if(state.respawnFlash>0&&!state.reducedMotion){ctx.fillStyle=`rgba(215,120,76,${state.respawnFlash*.42})`;ctx.fillRect(0,0,width,height)}
+    ctx.save();
+
+  const portraitHud=height>width;
+  const challengeHudWidth=portraitHud
+    ? Math.min(width-32,360)
+    : 300;
+
+  const challengeHudX=portraitHud
+    ? (width-challengeHudWidth)/2
+    : 16;
+
+  const challengeHudY=portraitHud
+    ? 76
+    : 16;
+
+  const challengeHudFont=portraitHud&&width<370
+    ? 11
+    : 12;
+
+  rounded(
+    ctx,
+    challengeHudX,
+    challengeHudY,
+    challengeHudWidth,
+    58,
+    14,
+    'rgba(50,43,35,.8)',
+    'rgba(240,189,98,.35)'
+  );
+
+  ctx.fillStyle='#fff0c7';
+  ctx.font=`700 ${challengeHudFont}px system-ui`;
+
+  ctx.fillText(
+    `PHASE ${state.phase?'UMBRA':'SOL'}   ◇ ${state.collected.size}/4   ⚑ ${state.checkpoint+1}/6`,
+    challengeHudX+14,
+    challengeHudY+23
+  );
+
+  ctx.fillStyle=state.chaseActive
+    ? '#ef8c5e'
+    : '#f0bd62';
+
+  ctx.fillText(
+    state.chaseActive
+      ? 'SAND SURGE — KEEP MOVING'
+      : 'CLOCKWORK STABLE',
+    challengeHudX+14,
+    challengeHudY+43
+  );
+
+  ctx.restore();
+
+  if(state.respawnFlash>0&&!state.reducedMotion){
+    ctx.fillStyle=`rgba(215,120,76,${state.respawnFlash*.42})`;
+    ctx.fillRect(0,0,width,height);
+  }
 }
 const map=engine.createMap({id:'sandClock',worldLength:WORLD_LENGTH,player:PLAYER,platforms:PLATFORMS,checkpoints:CHECKPOINTS,collectibles:COLLECTIBLES,hazards:HAZARDS,finish:FINISH,floorRatio:.82,requiredMechanisms:['gear','sinking','phaseA','phaseB'],minCheckpoints:6,createState:()=>({phase:0,sinking:{},switchContact:false,brokenLevers:new Set(),chaseActive:false,sandWaveX:4970}),platformMotion,onLand,blockers,afterPhysics,onRespawn,collectibleVisible:(item,state)=>!item.hidden||state.hiddenFound,score,render,validate:()=>PLATFORMS.filter(p=>p.type==='gear').length>=5?[]:['missing-gear-platforms']});
 globalThis.NovaSandClockMap=Object.freeze({...map,SWITCHES,LEVER,FINISH});
