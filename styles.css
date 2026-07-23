@@ -1416,3 +1416,139 @@ html,body{height:100%;min-height:100%;overflow:hidden;overscroll-behavior:none}
     grid-row: 4 !important;
   }
 }
+/* =========================================================
+   NOVA RUN — FINAL UI POLISH V17
+
+   Fixes:
+   1. Desktop pause message overlapping NOVA RUN
+   2. Portrait challenge logo above all HUD and controls
+   3. Larger portrait runner logo
+   4. Prevent button long-press text selection/callout
+   ========================================================= */
+
+/* Prevent game buttons from being selected, copied or dragged. */
+#nova-run-game button,
+#nova-run-game button *,
+#nova-run-game [role="button"],
+#nova-run-game [role="button"] * {
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
+}
+
+#nova-run-game button img,
+#nova-run-game button svg,
+#nova-run-game [role="button"] img,
+#nova-run-game [role="button"] svg {
+  -webkit-user-drag: none;
+  pointer-events: none;
+}
+
+/* Desktop pause layout:
+   NOVA RUN stays at the top.
+   The pause status moves clearly underneath it. */
+@media (hover: hover) and
+       (pointer: fine) and
+       (min-width: 901px) and
+       (min-height: 600px) {
+
+  #nova-run-game[data-mode="pause"] .nr-brand {
+    top: calc(env(safe-area-inset-top, 0px) + 12px) !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    z-index: 7 !important;
+  }
+
+  #nova-run-game[data-mode="pause"] .nr-pause-status {
+    top: calc(env(safe-area-inset-top, 0px) + 86px) !important;
+    bottom: auto !important;
+    left: 50% !important;
+    right: auto !important;
+    margin: 0 !important;
+    transform: translateX(-50%) !important;
+    z-index: 6 !important;
+  }
+}
+
+/* Portrait runner:
+   increase the logo scale without affecting landscape or desktop. */
+@media (pointer: coarse) and (orientation: portrait) {
+
+  #nova-run-game[data-game-type="runner"][data-mode="play"] .nr-brand,
+  #nova-run-game[data-game-type="runner"][data-mode="pause"] .nr-brand {
+    top: calc(
+      var(--safe-top) +
+      var(--visual-top-offset, 0px) +
+      8px
+    ) !important;
+
+    left: 50% !important;
+    transform: translateX(-50%) scale(1.16) !important;
+    transform-origin: top center;
+    z-index: 7 !important;
+  }
+
+  #nova-run-game[data-game-type="runner"][data-mode="play"] .nr-orientation,
+  #nova-run-game[data-game-type="runner"][data-mode="pause"] .nr-orientation {
+    top: calc(
+      var(--safe-top) +
+      var(--visual-top-offset, 0px) +
+      70px
+    ) !important;
+  }
+
+  #nova-run-game[data-game-type="runner"][data-mode="play"] .nr-quick-controls,
+  #nova-run-game[data-game-type="runner"][data-mode="pause"] .nr-quick-controls {
+    top: calc(
+      var(--safe-top) +
+      var(--visual-top-offset, 0px) +
+      70px
+    ) !important;
+  }
+}
+
+/* Portrait challenge final hierarchy:
+
+   Row 1: NOVA RUN
+   Row 2: challenge status panel, painted by map JS
+   Row 3: orientation / pause / settings
+
+   The status panel is moved to y=76 in all three challenge maps. */
+@media (pointer: coarse) and (orientation: portrait) {
+
+  #nova-run-game[data-game-type="challenge"][data-mode="play"] .nr-brand,
+  #nova-run-game[data-game-type="challenge"][data-mode="pause"] .nr-brand {
+    top: calc(
+      var(--safe-top) +
+      var(--visual-top-offset, 0px) +
+      8px
+    ) !important;
+
+    left: 50% !important;
+    transform: translateX(-50%) scale(1.04) !important;
+    transform-origin: top center;
+    z-index: 7 !important;
+  }
+
+  #nova-run-game[data-game-type="challenge"][data-mode="play"] .nr-orientation,
+  #nova-run-game[data-game-type="challenge"][data-mode="pause"] .nr-orientation {
+    top: calc(
+      var(--safe-top) +
+      var(--visual-top-offset, 0px) +
+      144px
+    ) !important;
+
+    left: calc(var(--safe-left) + 10px) !important;
+  }
+
+  #nova-run-game[data-game-type="challenge"][data-mode="play"] .nr-quick-controls,
+  #nova-run-game[data-game-type="challenge"][data-mode="pause"] .nr-quick-controls {
+    top: calc(
+      var(--safe-top) +
+      var(--visual-top-offset, 0px) +
+      144px
+    ) !important;
+
+    right: calc(var(--safe-right) + 10px) !important;
+  }
+}
