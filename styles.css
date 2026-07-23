@@ -1552,3 +1552,201 @@ html,body{height:100%;min-height:100%;overflow:hidden;overscroll-behavior:none}
     right: calc(var(--safe-right) + 10px) !important;
   }
 }
+/* =========================================================
+   NOVA RUN — SAFE UI FIX V19
+   Scope:
+   - landscape settings compact layout
+   - neutral character preview frame
+   - portrait challenge HUD hierarchy
+   - long-press protection
+   ========================================================= */
+
+/* Prevent selection, copying, callouts and dragging in game UI. */
+#nova-run-game,
+#nova-run-game * {
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#nova-run-game img,
+#nova-run-game svg,
+#nova-run-game canvas {
+  -webkit-user-drag: none;
+}
+
+#nova-run-game input,
+#nova-run-game textarea,
+#nova-run-game select,
+#nova-run-game [contenteditable="true"] {
+  -webkit-user-select: text !important;
+  user-select: text !important;
+  -webkit-touch-callout: default !important;
+}
+
+/* Challenge mode has no difficulty selection. */
+#nova-run-game[data-settings-scene-mode="challenge"]
+.nr-difficulty-setting {
+  display: none !important;
+}
+
+/* Character focus frame must stay neutral.
+   Character-specific colors remain inside the canvas. */
+#nova-run-game .nr-character-focus,
+#nova-run-game .nr-character-stage {
+  border-color: var(--nr-line-cool) !important;
+}
+
+#nova-run-game .nr-character-focus {
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.05),
+    0 10px 26px rgba(0,0,0,.18) !important;
+}
+
+/* Compact settings header on short landscape screens. */
+@media (pointer: coarse) and
+       (orientation: landscape) and
+       (max-height: 600px) {
+
+  #nova-run-game.settings-open .nr-toolbar {
+    top: calc(var(--safe-top) + 8px) !important;
+    bottom: calc(var(--safe-bottom) + 8px) !important;
+  }
+
+  #nova-run-game .nr-settings-heading {
+    min-height: 54px !important;
+    padding: 5px 10px 5px 16px !important;
+  }
+
+  #nova-run-game .nr-settings-heading .nr-close-button {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+
+    inline-size: 44px !important;
+    block-size: 44px !important;
+    min-inline-size: 44px !important;
+    min-block-size: 44px !important;
+  }
+
+  #nova-run-game .nr-panel-tabs {
+    margin: 8px 12px 0 !important;
+    padding: 3px !important;
+  }
+
+  #nova-run-game .nr-panel-tabs button {
+    min-height: 42px !important;
+  }
+
+  #nova-run-game .nr-settings-scroll {
+    padding: 10px 12px
+      calc(10px + var(--safe-bottom)) !important;
+  }
+}
+
+/* Portrait challenge hierarchy:
+   brand -> status panel -> controls. */
+@media (pointer: coarse) and
+       (orientation: portrait) {
+
+  #nova-run-game[data-game-type="challenge"][data-mode="play"]
+  .nr-brand,
+  #nova-run-game[data-game-type="challenge"][data-mode="pause"]
+  .nr-brand {
+    top: calc(
+      var(--safe-top) +
+      var(--visual-top-offset, 0px) +
+      7px
+    ) !important;
+
+    left: 50% !important;
+    transform: translateX(-50%) scale(.92) !important;
+    transform-origin: top center;
+    z-index: 7 !important;
+  }
+
+  #nova-run-game[data-game-type="challenge"][data-mode="play"]
+  .nr-orientation,
+  #nova-run-game[data-game-type="challenge"][data-mode="pause"]
+  .nr-orientation {
+    top: calc(
+      var(--safe-top) +
+      var(--visual-top-offset, 0px) +
+      172px
+    ) !important;
+
+    left: calc(var(--safe-left) + 16px) !important;
+
+    width: 108px !important;
+    min-width: 108px !important;
+    height: 50px !important;
+    min-height: 50px !important;
+
+    padding: 0 13px !important;
+    border-radius: 16px !important;
+    font-size: 14px !important;
+  }
+
+  #nova-run-game[data-game-type="challenge"][data-mode="play"]
+  .nr-quick-controls,
+  #nova-run-game[data-game-type="challenge"][data-mode="pause"]
+  .nr-quick-controls {
+    top: calc(
+      var(--safe-top) +
+      var(--visual-top-offset, 0px) +
+      172px
+    ) !important;
+
+    right: calc(var(--safe-right) + 16px) !important;
+    gap: 8px !important;
+  }
+
+  #nova-run-game[data-game-type="challenge"]
+  .nr-quick-controls .btn {
+    width: 50px !important;
+    height: 50px !important;
+    min-width: 50px !important;
+    min-height: 50px !important;
+
+    inline-size: 50px !important;
+    block-size: 50px !important;
+    min-inline-size: 50px !important;
+    min-block-size: 50px !important;
+
+    padding: 0 !important;
+    border-radius: 16px !important;
+  }
+}
+
+@media (pointer: coarse) and
+       (orientation: portrait) and
+       (max-width: 360px) {
+
+  #nova-run-game[data-game-type="challenge"]
+  .nr-orientation {
+    left: calc(var(--safe-left) + 12px) !important;
+    width: 98px !important;
+    min-width: 98px !important;
+  }
+
+  #nova-run-game[data-game-type="challenge"]
+  .nr-quick-controls {
+    right: calc(var(--safe-right) + 12px) !important;
+    gap: 6px !important;
+  }
+
+  #nova-run-game[data-game-type="challenge"]
+  .nr-quick-controls .btn {
+    width: 46px !important;
+    height: 46px !important;
+    min-width: 46px !important;
+    min-height: 46px !important;
+
+    inline-size: 46px !important;
+    block-size: 46px !important;
+    min-inline-size: 46px !important;
+    min-block-size: 46px !important;
+  }
+}
