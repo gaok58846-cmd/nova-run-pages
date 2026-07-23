@@ -41,8 +41,63 @@ function render(ctx,state,width,height,theme,api){
   for(let i=0;i<CHECKPOINTS.length;i++){const cp=CHECKPOINTS[i],active=i<=state.checkpoint,y=floor+cp.y,color=active?'#e59a61':'#8ba6a1';ctx.strokeStyle=color;ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(cp.x,y);ctx.lineTo(cp.x,y-43);ctx.stroke();polygon(ctx,[[cp.x,y-55],[cp.x+10,y-45],[cp.x,y-35],[cp.x-10,y-45]],color,active?'#fff2cf':'#557b79')}
   for(const h of HAZARDS){ctx.fillStyle='#cf5d3f';ctx.globalAlpha=.82;ctx.fillRect(h.x,floor+h.y,h.w,h.h);ctx.globalAlpha=1;ctx.fillStyle='#ffd6a2';for(let x=h.x+8;x<h.x+h.w;x+=18){ctx.beginPath();ctx.arc(x,floor+h.y+8,4,0,Math.PI*2);ctx.fill()}}
   drawFinishGate(ctx,state,height,FINISH,{floorRatio:.82,primary:'#8ee3cf',secondary:'#fff2cf',body:'#356466',energy:'#f1be7d'});ctx.restore();
-  ctx.save();rounded(ctx,16,16,286,58,14,'rgba(29,55,57,.78)','rgba(213,246,235,.32)');ctx.fillStyle='#f7ead2';ctx.font='700 12px system-ui';ctx.fillText(`TIDE ${Math.round(tideAmount(state)*100)}%   ◇ ${state.collected.size}/4   ⚑ ${state.checkpoint+1}/5`,30,39);ctx.fillStyle=state.time<state.tideFrozenUntil?'#f2bb7e':'#8ee3cf';ctx.fillText(state.time<state.tideFrozenUntil?'TIDE LOCKED':'CURRENT ACTIVE',30,59);ctx.restore();if(state.respawnFlash>0&&!state.reducedMotion){ctx.fillStyle=`rgba(77,174,168,${state.respawnFlash*.42})`;ctx.fillRect(0,0,width,height)}
-}
+    ctx.save();
+
+  const portraitHud=height>width;
+  const challengeHudWidth=portraitHud
+    ? Math.min(width-32,360)
+    : 286;
+
+  const challengeHudX=portraitHud
+    ? (width-challengeHudWidth)/2
+    : 16;
+
+  const challengeHudY=portraitHud
+    ? 76
+    : 16;
+
+  const challengeHudFont=portraitHud&&width<370
+    ? 11
+    : 12;
+
+  rounded(
+    ctx,
+    challengeHudX,
+    challengeHudY,
+    challengeHudWidth,
+    58,
+    14,
+    'rgba(29,55,57,.78)',
+    'rgba(213,246,235,.32)'
+  );
+
+  ctx.fillStyle='#f7ead2';
+  ctx.font=`700 ${challengeHudFont}px system-ui`;
+
+  ctx.fillText(
+    `TIDE ${Math.round(tideAmount(state)*100)}%   ◇ ${state.collected.size}/4   ⚑ ${state.checkpoint+1}/5`,
+    challengeHudX+14,
+    challengeHudY+23
+  );
+
+  ctx.fillStyle=state.time<state.tideFrozenUntil
+    ? '#f2bb7e'
+    : '#8ee3cf';
+
+  ctx.fillText(
+    state.time<state.tideFrozenUntil
+      ? 'TIDE LOCKED'
+      : 'CURRENT ACTIVE',
+    challengeHudX+14,
+    challengeHudY+43
+  );
+
+  ctx.restore();
+
+  if(state.respawnFlash>0&&!state.reducedMotion){
+    ctx.fillStyle=`rgba(77,174,168,${state.respawnFlash*.42})`;
+    ctx.fillRect(0,0,width,height);
+  }
 const map=engine.createMap({id:'tideCity',worldLength:WORLD_LENGTH,player:PLAYER,platforms:PLATFORMS,checkpoints:CHECKPOINTS,collectibles:COLLECTIBLES,hazards:HAZARDS,finish:FINISH,floorRatio:.82,requiredMechanisms:['buoyant'],minCheckpoints:5,createState:()=>({tideFrozenUntil:0,frozenTide:.5,valveCooldown:0,brokenGrates:new Set()}),platformMotion,environment,blockers,afterPhysics,score,render,validate:()=>PLATFORMS.filter(p=>p.type==='buoyant').length>=4?[]:['missing-buoyant-platforms']});
 globalThis.NovaTideCityMap=Object.freeze({...map,CURRENT_ZONES,SLUICE,GRATE,FINISH,tideAmount,waterLevel});
 })();
