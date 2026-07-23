@@ -1,0 +1,17 @@
+{
+  "name": "NOVA RUN",
+  "short_name": "NOVA RUN",
+  "description": "NOVA 能量跑酷与平台闯关游戏",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#181919",
+  "theme_color": "#181919",
+  "orientation": "any",
+  "icons": [
+    {"src": "./assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "./assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "./assets/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}
