@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <meta name="theme-color" content="#181818">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NOVA RUN">
+  <meta name="description" content="NOVA RUN — 支持电脑与手机的霓虹跑酷游戏">
+  <title>NOVA RUN</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./assets/icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="./assets/icons/icon-192.png">
+  <link rel="stylesheet" href="./styles.css?v=20260723-mobile-pwa12">
+</head>
+<body>
+<div id="nova-run-game" role="application" aria-label="霓虹城市跑酷游戏" data-mode="menu" data-scene="guangzhou" data-theme="dark" data-build="2026-07-23-mobile-pwa12">
+  <canvas tabindex="0" aria-label="跑酷游戏画面：躲避障碍，收集能量并尽可能跑得更远"></canvas>
+  <button type="button" class="nr-settings-backdrop" data-settings-backdrop aria-label="关闭设置并继续游戏"></button>
+  <section class="nr-toolbar viz-controls" aria-hidden="true" role="dialog" aria-modal="true" aria-label="游戏设置">
+    <div class="nr-settings-heading"><span class="nr-diamond-icon is-outline" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><path d="M8 1.5 14.5 8 8 14.5 1.5 8Z"/></svg></span><span data-i18n="settings">设置</span><button type="button" class="nr-icon-button nr-close-button" data-close-settings aria-label="关闭"><span aria-hidden="true"></span></button></div>
+    <nav class="nr-panel-tabs" aria-label="菜单页面"><button type="button" data-settings-page="map" aria-selected="true" data-i18n="mapsTab">地图</button><button type="button" data-settings-page="character" aria-selected="false" data-i18n="characterTab">角色</button><button type="button" data-settings-page="settings" aria-selected="false" data-i18n="settingsTab">设置</button></nav>
+    <div class="nr-settings-scroll">
+    <section class="nr-settings-section nr-settings-fields nr-settings-general" data-settings-section="settings" hidden>
+    <div class="nr-form-field">
+      <span class="nr-field-title" data-i18n="language">语言</span>
+      <select class="nr-native-select" data-setting="language" data-custom-select aria-label="语言">
+        <option value="zh">中文</option>
+        <option value="en">English</option>
+        <option value="ru">Русский</option>
+      </select>
+    </div>
+    <div class="nr-form-field">
+      <span class="nr-field-title" data-i18n="theme">显示模式</span>
+      <select class="nr-native-select" data-setting="theme" data-custom-select aria-label="显示模式">
+        <option value="dark" data-i18n="darkMode">暗夜模式</option>
+        <option value="light" data-i18n="lightMode">日间模式</option>
+      </select>
+    </div>
+    </section>
+    <section class="nr-settings-section" data-settings-section="map">
+    <section class="nr-scene-picker" data-scene-picker aria-label="地图选择">
+      <div class="nr-scene-picker-head"><span><b data-i18n="mapSelection">地图选择</b><small data-i18n="mapSelectionHint">选择图片查看路线与专属机关</small></span><i aria-hidden="true">09</i></div>
+      <div class="nr-scene-tabs" role="tablist" aria-label="游戏模式">
+        <button type="button" role="tab" aria-selected="true" data-scene-tab="runner"><span aria-hidden="true">∞</span><b data-i18n="endlessMode">无尽跑酷</b><small data-i18n="endlessModeHint">六座城市与自然场景</small></button>
+        <button type="button" role="tab" aria-selected="false" data-scene-tab="challenge"><span class="nr-diamond-icon is-solid" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><path d="M8 1.5 14.5 8 8 14.5 1.5 8Z"/></svg></span><b data-i18n="challengeMode">闯关模式</b><small data-i18n="challengeModeHint">手工平台关卡</small></button>
+      </div>
+      <article class="nr-scene-focus" data-scene-focus><img data-scene-focus-image src="./assets/scene-previews/guangzhou.webp" alt=""><div><span data-i18n="selectedRoute">当前路线</span><strong data-scene-focus-name>广州·珠江新城</strong><p data-scene-focus-copy>江畔塔影 · 无人机与桥梁</p><div class="nr-scene-focus-tags" data-scene-focus-tags></div></div></article>
+      <div class="nr-scene-grid">
+        <button type="button" class="nr-scene-card" data-scene-card data-scene-mode="runner" data-scene-value="guangzhou" aria-pressed="false">
+          <span class="nr-scene-image"><img src="./assets/scene-previews/guangzhou.webp" alt="" loading="lazy"><i>01</i><em data-scene-lock hidden></em></span><span class="nr-scene-copy"><strong data-i18n="guangzhou">广州·珠江新城</strong><small data-i18n="preview_guangzhou">江畔塔影 · 无人机与桥梁</small></span>
+        </button>
+        <button type="button" class="nr-scene-card" data-scene-card data-scene-mode="runner" data-scene-value="shanghai" aria-pressed="false">
+          <span class="nr-scene-image"><img src="./assets/scene-previews/shanghai.webp" alt="" loading="lazy"><i>02</i><em data-scene-lock hidden></em></span><span class="nr-scene-copy"><strong data-i18n="shanghai">上海·陆家嘴</strong><small data-i18n="preview_shanghai">高速列车 · 连续动作</small></span>
+        </button>
+        <button type="button" class="nr-scene-card" data-scene-card data-scene-mode="runner" data-scene-value="shenzhen" aria-pressed="false">
+          <span class="nr-scene-image"><img src="./assets/scene-previews/shenzhen.webp" alt="" loading="lazy"><i>03</i><em data-scene-lock hidden></em></span><span class="nr-scene-copy"><strong data-i18n="shenzhen">深圳·未来 CBD</strong><small data-i18n="preview_shenzhen">激光机关 · 冲刺破障</small></span>
+        </button>
+        <button type="button" class="nr-scene-card" data-scene-card data-scene-mode="runner" data-scene-value="snow" aria-pressed="false">
+          <span class="nr-scene-image"><img src="./assets/scene-previews/snow.webp" alt="" loading="lazy"><i>04</i><em data-scene-lock hidden></em></span><span class="nr-scene-copy"><strong data-i18n="snow">雪山之巅</strong><small data-i18n="preview_snow">轻微惯性 · 冰裂与雪球</small></span>
+        </button>
+        <button type="button" class="nr-scene-card" data-scene-card data-scene-mode="runner" data-scene-value="volcano" aria-pressed="false">
+          <span class="nr-scene-image"><img src="./assets/scene-previews/volcano.webp" alt="" loading="lazy"><i>05</i><em data-scene-lock hidden></em></span><span class="nr-scene-copy"><strong data-i18n="volcano">熔岩火山</strong><small data-i18n="preview_volcano">落石预警 · 熔岩与火柱</small></span>
+        </button>
+        <button type="button" class="nr-scene-card" data-scene-card data-scene-mode="runner" data-scene-value="jiuzhaigou" aria-pressed="false">
+          <span class="nr-scene-image"><img src="./assets/scene-previews/jiuzhaigou.webp" alt="" loading="lazy"><i>06</i><em data-scene-lock hidden></em></span><span class="nr-scene-copy"><strong data-i18n="jiuzhaigou">九寨沟</strong><small data-i18n="preview_jiuzhaigou">瀑布栈桥 · 水面跳台</small></span>
+        </button>
+        <button type="button" class="nr-scene-card nr-scene-challenge" data-scene-card data-scene-mode="challenge" data-scene-value="dreamPeak" aria-pressed="false" hidden>
+          <span class="nr-scene-image"><img src="./assets/scene-previews/dream-peak.webp" alt="" loading="lazy"><i>Ⅰ</i><em data-scene-lock hidden></em><mark data-scene-complete hidden>✓</mark></span><span class="nr-scene-copy"><strong data-i18n="dreamPeak">晨雾折光峰</strong><small data-i18n="preview_dreamPeak">独立闯关 · 平台机关与检查点</small><b data-i18n="challengeBadge">独立关卡</b></span>
+        </button>
+        <button type="button" class="nr-scene-card nr-scene-challenge" data-scene-card data-scene-mode="challenge" data-scene-value="tideCity" aria-pressed="false" hidden>
+          <span class="nr-scene-image"><img src="./assets/scene-previews/tide-city.webp" alt="" loading="lazy"><i>Ⅱ</i><em data-scene-lock hidden></em><mark data-scene-complete hidden>✓</mark></span><span class="nr-scene-copy"><strong data-i18n="tideCity">潮汐沉没城</strong><small data-i18n="preview_tideCity">潮位浮台 · 水闸与水流</small><b data-i18n="challengeBadge">独立关卡</b></span>
+        </button>
+        <button type="button" class="nr-scene-card nr-scene-challenge" data-scene-card data-scene-mode="challenge" data-scene-value="sandClock" aria-pressed="false" hidden>
+          <span class="nr-scene-image"><img src="./assets/scene-previews/sand-clock.webp" alt="" loading="lazy"><i>Ⅲ</i><em data-scene-lock hidden></em><mark data-scene-complete hidden>✓</mark></span><span class="nr-scene-copy"><strong data-i18n="sandClock">沙海时轮城</strong><small data-i18n="preview_sandClock">齿轮轨道 · 流沙追逐</small><b data-i18n="challengeBadge">独立关卡</b></span>
+        </button>
+      </div>
+    </section>
+    <div class="nr-form-field nr-difficulty-setting">
+      <span class="nr-field-title" data-i18n="difficulty">难度</span>
+      <select class="nr-native-select" data-setting="difficulty" data-custom-select aria-label="难度">
+        <option value="easy">低难度</option>
+        <option value="medium" selected>中难度</option>
+        <option value="hard">高难度</option>
+      </select>
+    </div>
+    <div class="nr-scene-native" hidden>
+      <span class="nr-field-title" data-i18n="scene">场景</span>
+      <select class="nr-native-select" data-setting="scene" data-select-mode="cards" aria-label="场景">
+        <option value="guangzhou">广州·珠江新城</option>
+        <option value="shanghai">上海·陆家嘴</option>
+        <option value="shenzhen">深圳·未来 CBD</option>
+        <option value="snow">雪山之巅</option>
+        <option value="volcano">熔岩火山</option>
+        <option value="jiuzhaigou">九寨沟</option>
+        <option value="dreamPeak">晨雾折光峰</option>
+        <option value="tideCity">潮汐沉没城</option>
+        <option value="sandClock">沙海时轮城</option>
+      </select>
+    </div>
+    </section>
+    <section class="nr-settings-section nr-settings-fields nr-settings-performance" data-settings-section="settings" hidden>
+    <label class="nr-motion-toggle">
+      <input type="checkbox" data-setting="motion">
+      <span class="nr-toggle-track" aria-hidden="true"><span></span></span>
+      <span data-i18n="reduceMotion">减少动态效果</span>
+    </label>
+    <div class="nr-form-field"><span class="nr-field-title" data-i18n="performanceMode">性能模式</span><select class="nr-native-select" data-setting="performanceMode" data-custom-select aria-label="性能模式"><option value="auto" data-i18n="performanceAuto">自动</option><option value="quality" data-i18n="performanceQuality">画质优先</option><option value="performance" data-i18n="performanceFast">流畅优先</option></select></div>
+    </section>
+    <section class="nr-settings-section nr-character-page" data-settings-section="character" hidden>
+      <article class="nr-character-focus">
+        <div class="nr-character-stage"><canvas data-skin-focus-canvas width="420" height="260" aria-label="当前角色预览"></canvas></div>
+        <div class="nr-character-copy"><span data-i18n="skin">角色外观</span><strong data-skin-focus-name>新星蓝</strong><p data-skin-focus-description></p><small data-skin-focus-unlock></small></div>
+      </article>
+      <div class="nr-skin-grid" role="listbox" aria-label="角色外观">
+        <button type="button" class="nr-skin-card" data-skin-card="nova" role="option"><canvas width="180" height="128" aria-hidden="true"></canvas><span></span><small></small><i aria-hidden="true"></i></button>
+        <button type="button" class="nr-skin-card" data-skin-card="pulse" role="option"><canvas width="180" height="128" aria-hidden="true"></canvas><span></span><small></small><i aria-hidden="true"></i></button>
+        <button type="button" class="nr-skin-card" data-skin-card="sunset" role="option"><canvas width="180" height="128" aria-hidden="true"></canvas><span></span><small></small><i aria-hidden="true"></i></button>
+        <button type="button" class="nr-skin-card" data-skin-card="prism" role="option"><canvas width="180" height="128" aria-hidden="true"></canvas><span></span><small></small><i aria-hidden="true"></i></button>
+        <button type="button" class="nr-skin-card" data-skin-card="ace" role="option"><canvas width="180" height="128" aria-hidden="true"></canvas><span></span><small></small><i aria-hidden="true"></i></button>
+      </div>
+      <select class="nr-native-select" data-setting="skin" data-select-mode="cards" aria-label="角色外观"></select>
+    </section>
+    <section class="nr-settings-section nr-settings-fields nr-settings-controls" data-settings-section="settings" hidden>
+    <div class="nr-settings-grid">
+      <label class="nr-check"><input type="checkbox" data-setting="musicEnabled"><span data-i18n="music">背景音乐</span></label>
+      <label class="nr-check"><input type="checkbox" data-setting="sfxEnabled"><span data-i18n="sfx">游戏音效</span></label>
+      <label class="nr-check"><input type="checkbox" data-setting="vibration"><span data-i18n="vibration">震动</span></label>
+      <label class="nr-check"><input type="checkbox" data-setting="showTutorial"><span data-i18n="showTutorial">显示教程</span></label>
+      <label class="nr-check"><input type="checkbox" data-setting="highContrast"><span data-i18n="highContrast">高对比度</span></label>
+      <label class="nr-check"><input type="checkbox" data-setting="autoFullscreen"><span data-i18n="autoFullscreen">开始时尝试全屏</span></label>
+    </div>
+    <label class="nr-range"><span data-i18n="masterVolume">总音量</span><input type="range" min="0" max="1" step="0.05" data-setting="masterVolume"></label>
+    <label class="nr-range"><span data-i18n="musicVolume">音乐音量</span><input type="range" min="0" max="1" step="0.05" data-setting="musicVolume"></label>
+    <label class="nr-range"><span data-i18n="sfxVolume">音效音量</span><input type="range" min="0" max="1" step="0.05" data-setting="sfxVolume"></label>
+    <label class="nr-range"><span data-i18n="shakeStrength">震动强度</span><input type="range" min="0" max="1" step="0.1" data-setting="shakeStrength"></label>
+    <label class="nr-range"><span data-i18n="touchOpacity">触控透明度</span><input type="range" min="0.45" max="1" step="0.05" data-setting="touchOpacity"></label>
+    <div class="nr-fullscreen-actions"><button type="button" class="btn" data-fullscreen-enter data-i18n="enterFullscreen">进入全屏</button><button type="button" class="btn" data-fullscreen-exit data-i18n="exitFullscreen">退出全屏</button></div>
+    <section class="nr-app-install" data-app-install aria-live="polite">
+      <div><strong data-i18n="appInstallTitle">应用安装</strong><small data-app-install-copy data-i18n="installChecking">正在检测安装状态…</small></div>
+      <button type="button" class="btn btn-primary" data-app-install-action data-i18n="installNovaRun" hidden>安装 NOVA RUN</button>
+    </section>
+    <button type="button" class="btn nr-clear-save" data-clear-save data-i18n="clearSave">清除存档</button>
+    </section>
+    </div>
+  </section>
+  <div class="nr-select-overlay" data-select-overlay hidden>
+    <button type="button" class="nr-select-backdrop" data-select-backdrop aria-label="关闭选择菜单"></button>
+    <section class="nr-select-dialog" data-select-dialog role="dialog" aria-modal="true" aria-labelledby="nr-select-title">
+      <header><strong id="nr-select-title" data-select-title></strong><button type="button" class="nr-icon-button nr-close-button" data-select-close aria-label="关闭选择菜单"><span aria-hidden="true"></span></button></header>
+      <div class="nr-select-list" id="nr-select-list" data-select-list role="listbox"></div>
+    </section>
+  </div>
+  <div class="nr-brand" aria-label="NOVA RUN，Made by Kai">
+    <div class="nr-wordmark" aria-hidden="true">
+      <svg class="nr-logo-mark" viewBox="0 0 56 56" focusable="false">
+        <path class="nr-logo-orbit" d="M28 3 49 15v25L28 53 7 40V15Z"/>
+        <path class="nr-logo-n" d="M16 39V17l24 22V17"/>
+        <path class="nr-logo-boost" d="m35 12 11 2-7 8Z"/>
+        <circle class="nr-logo-star" cx="47" cy="8" r="3"/>
+      </svg>
+      <span class="nr-title"><strong>NOVA</strong><em>RUN</em></span>
+    </div>
+    <div class="nr-creator" aria-hidden="true"><i></i><span>MADE BY</span><strong>KAI</strong><i></i></div>
+  </div>
+  <section class="nr-menu-console" data-menu-console aria-label="NOVA RUN 主菜单">
+    <div class="nr-menu-kicker"><span></span><b data-i18n="selectedRoute">当前路线</b><i>09 / NOVA</i></div>
+    <div class="nr-menu-route">
+      <p data-i18n="scene">场景</p>
+      <h1 data-menu-scene>广州·珠江新城</h1>
+      <div class="nr-menu-meta">
+        <span><i aria-hidden="true"></i><b data-i18n="difficulty">难度</b><strong data-menu-difficulty>中难度</strong></span>
+        <span><i aria-hidden="true"></i><b data-i18n="runMode">模式</b><strong data-menu-mode>无尽跑酷</strong></span>
+      </div>
+      <p class="nr-menu-features" data-menu-features>二段跳 · 滑铲 · 冲刺破障 · 完美闪避</p>
+    </div>
+    <button type="button" class="nr-menu-start" data-menu-start>
+      <span><small data-i18n="enterRoute">进入路线</small><strong data-menu-start-text>开始奔跑</strong></span>
+      <i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h13M13 7l5 5-5 5"/></svg></i>
+    </button>
+    <div class="nr-menu-actions">
+      <button type="button" data-open-profile><span aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9Z"/></svg></span><b data-i18n="progress">成长记录</b></button>
+      <button type="button" data-open-settings><span aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 8.2a3.8 3.8 0 1 0 0 7.6 3.8 3.8 0 0 0 0-7.6Z"/><path d="m19 13.8 2 1.2-2 3.4-2.1-1.1a8 8 0 0 1-2.3 1.3V21h-4v-2.4a8 8 0 0 1-2.3-1.3l-2.1 1.1-2-3.4 2-1.2a8 8 0 0 1 0-2.6L4.2 10l2-3.4 2.1 1.1a8 8 0 0 1 2.3-1.3V4h4v2.4a8 8 0 0 1 2.3 1.3L19 6.6l2 3.4-2 1.2a8 8 0 0 1 0 2.6Z"/></svg></span><b data-i18n="settings">游戏设置</b></button>
+    </div>
+    <div class="nr-controls-help-wrap" data-controls-help>
+      <button type="button" class="nr-controls-help" data-controls-help-trigger aria-label="查看操作说明" aria-describedby="nr-controls-help-tip" aria-expanded="false"></button>
+      <div class="nr-controls-tooltip" id="nr-controls-help-tip" role="tooltip" data-menu-controls>空格/W 跳跃 · S 滑铲 · Shift/K 冲刺</div>
+    </div>
+  </section>
+  <button type="button" class="btn nr-orientation" data-orientation-toggle aria-label="切换到横屏">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h8.5l-2.7-2.7M17 17H8.5l2.7 2.7"/><path d="M17 7a7 7 0 0 1 1.8 7M7 17a7 7 0 0 1-1.8-7"/></svg><span data-orientation-label>横屏</span>
+  </button>
+  <div class="nr-quick-controls" aria-label="游戏快捷控制">
+    <button type="button" class="btn nr-icon-button nr-inplay" data-quick="pause" aria-label="暂停"><span aria-hidden="true" data-pause-icon>Ⅱ</span></button>
+    <button type="button" class="btn nr-icon-button nr-inplay" data-quick="sound" aria-label="关闭声音"><span aria-hidden="true" data-sound-icon>♪</span></button>
+    <button type="button" class="btn nr-icon-button" data-open-profile aria-label="成长与每日任务"><span aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9Z"/></svg></span></button>
+    <button type="button" class="btn nr-icon-button" data-open-settings aria-label="设置"><span aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 8.2a3.8 3.8 0 1 0 0 7.6 3.8 3.8 0 0 0 0-7.6Z"/><path d="m19 13.8 2 1.2-2 3.4-2.1-1.1a8 8 0 0 1-2.3 1.3V21h-4v-2.4a8 8 0 0 1-2.3-1.3l-2.1 1.1-2-3.4 2-1.2a8 8 0 0 1 0-2.6L4.2 10l2-3.4 2.1 1.1a8 8 0 0 1 2.3-1.3V4h4v2.4a8 8 0 0 1 2.3 1.3L19 6.6l2 3.4-2 1.2a8 8 0 0 1 0 2.6Z"/></svg></span></button>
+  </div>
+  <div class="nr-orientation-hint" data-orientation-hint hidden role="status" aria-live="polite"></div>
+  <div class="nr-touch" aria-label="触摸控制">
+    <div class="nr-move" aria-label="移动控制">
+      <button type="button" class="btn" data-act="left" aria-label="向左移动"><span aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M14.5 5 7.5 12l7 7"/></svg></span></button>
+      <button type="button" class="btn" data-act="right" aria-label="向右移动"><span aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="m9.5 5 7 7-7 7"/></svg></span></button>
+    </div>
+    <button type="button" class="btn btn-primary nr-touch-jump" data-act="jump" aria-label="跳跃"><span aria-hidden="true">↥</span><span data-action-label="jump">跳跃</span></button>
+    <div class="nr-action-right">
+      <button type="button" class="btn btn-primary" data-act="dash" aria-label="冲刺"><span aria-hidden="true">⚡</span><span data-action-label="dash">冲刺</span></button>
+      <button type="button" class="btn" data-act="slide" aria-label="滑铲"><span aria-hidden="true">↧</span><span data-action-label="slide">滑铲</span></button>
+    </div>
+  </div>
+  <div class="nr-pause-status" data-pause-status role="status" aria-live="polite"><strong data-i18n="paused">已暂停</strong><small data-i18n="resume">按 P 或 Esc 继续</small></div>
+  <section class="nr-profile-panel" data-profile-panel hidden aria-label="成长与每日任务">
+    <div class="nr-panel-head"><strong data-i18n="progress">成长记录</strong><button type="button" class="nr-icon-button nr-close-button" data-close-profile aria-label="关闭"><span aria-hidden="true"></span></button></div>
+    <div class="nr-stat-grid" data-profile-stats></div>
+    <h3 data-i18n="dailyTasks">每日任务</h3><div class="nr-daily-list" data-daily-list></div>
+    <h3 data-i18n="achievements">成就</h3><div class="nr-achievement-list" data-achievement-list></div>
+  </section>
+  <section class="nr-tutorial" data-tutorial hidden role="status" aria-live="polite">
+    <div class="nr-tutorial-head"><div class="nr-tutorial-step" data-tutorial-count></div><button type="button" class="nr-icon-button nr-close-button" data-skip-tutorial aria-label="关闭"><span aria-hidden="true"></span></button></div><strong data-tutorial-title></strong><p data-tutorial-text></p>
+    <button type="button" class="btn" data-skip-tutorial data-i18n="skipTutorial">跳过教程</button>
+  </section>
+  <section class="nr-results" data-results hidden role="dialog" aria-modal="true" aria-label="本局结算">
+    <div class="nr-result-head"><span data-i18n="runSummary">本局表现</span><strong data-result-record></strong><button type="button" class="nr-icon-button nr-close-button" data-result-close aria-label="关闭"><span aria-hidden="true"></span></button></div>
+    <div class="nr-result-score" data-result-score></div><div class="nr-result-grid" data-result-grid></div>
+    <div class="nr-result-actions">
+      <button type="button" class="btn btn-primary" data-result-action="retry" data-i18n="again">再来一局</button>
+      <button type="button" class="btn" data-result-action="menu" data-i18n="backMenu">返回菜单</button>
+      <button type="button" class="btn" data-result-action="scene" data-i18n="changeScene">更换场景</button>
+      <button type="button" class="btn" data-result-action="share" data-i18n="shareScore">分享成绩</button>
+    </div>
+  </section>
+  <section class="nr-share-panel" data-share-panel hidden role="dialog" aria-modal="true" aria-label="分享成绩">
+    <div class="nr-panel-head"><strong data-i18n="shareFallbackTitle">分享挑战</strong><button type="button" class="nr-icon-button nr-close-button" data-share-close aria-label="关闭"><span aria-hidden="true"></span></button></div>
+    <p data-i18n="manualCopy">当前浏览器不能直接调用系统分享，请复制下面的成绩和挑战链接。</p>
+    <textarea data-share-text readonly aria-label="成绩和挑战链接"></textarea>
+    <div class="nr-share-actions"><button type="button" class="btn btn-primary" data-share-copy data-i18n="copyShare">复制内容</button><button type="button" class="btn" data-share-close data-i18n="close">关闭</button></div>
+  </section>
+  <section class="nr-confirm" data-confirm hidden role="alertdialog" aria-modal="true"><div class="nr-panel-head"><strong data-i18n="clearConfirmTitle">确定清除存档？</strong><button type="button" class="nr-icon-button nr-close-button" data-confirm-cancel aria-label="关闭"><span aria-hidden="true"></span></button></div><p data-i18n="clearConfirmText">所有统计、成就和设置都会被删除，无法恢复。</p><div><button type="button" class="btn" data-confirm-cancel data-i18n="cancel">取消</button><button type="button" class="btn nr-danger" data-confirm-clear data-i18n="confirmClear">确认清除</button></div></section>
+  <aside class="nr-install-prompt" data-ios-install hidden><strong data-i18n="installIosTitle">添加 NOVA RUN 到主屏幕</strong><p data-i18n="installIosText">在 Safari 中点击“分享”，再选择“添加到主屏幕”。</p><div><button type="button" class="btn btn-primary" data-ios-install-ok data-i18n="gotIt">知道了</button><button type="button" class="btn" data-ios-install-dismiss data-i18n="dontRemind">不再提示</button></div></aside>
+  <aside class="nr-update-prompt" data-update-prompt hidden><span data-update-message data-i18n="updateReady">NOVA RUN 有新版本</span><button type="button" class="btn btn-primary" data-update-now data-i18n="updateNow">立即更新</button><button type="button" class="btn" data-update-later data-i18n="later">稍后</button></aside>
+  <div class="nr-toast" data-toast hidden role="status" aria-live="polite"></div>
+  <div class="nr-error" data-error hidden role="alert">启动失败，请刷新页面或更换浏览器。</div>
+</div>
+  <script>if(typeof globalThis==='undefined')window.globalThis=window;</script>
+  <script defer src="./config.js?v=20260723-mobile-pwa12"></script>
+  <script defer src="./i18n.js?v=20260723-mobile-pwa12"></script>
+  <script defer src="./storage.js?v=20260723-mobile-pwa12"></script>
+  <script defer src="./platform.js?v=20260723-mobile-pwa12"></script>
+  <script defer src="./audio.js?v=20260722-premium7"></script>
+  <script defer src="./select-menu.js?v=20260723-mobile-pwa12"></script>
+  <script defer src="./ui.js?v=20260723-mobile-pwa12"></script>
+  <script defer src="./player.js?v=20260723-mobile-pwa12"></script>
+  <script defer src="./backgrounds.js?v=20260723-mobile-pwa12"></script>
+  <script defer src="./state-effects.js?v=20260723-mobile-pwa12"></script>
+  <script defer src="./challenge-engine.js?v=20260722-premium2"></script>
+  <script defer src="./mountain-map.js?v=20260722-premium2"></script>
+  <script defer src="./tide-city-map.js?v=20260722-premium2"></script>
+  <script defer src="./sand-clock-map.js?v=20260722-premium2"></script>
+  <script defer src="./game.js?v=20260723-mobile-pwa12"></script>
+</body>
+</html>

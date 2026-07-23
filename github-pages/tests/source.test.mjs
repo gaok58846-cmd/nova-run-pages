@@ -1,0 +1,76 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+
+const html=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
+const game=fs.readFileSync(new URL('../game.js',import.meta.url),'utf8');
+const mountain=fs.readFileSync(new URL('../mountain-map.js',import.meta.url),'utf8');
+const engine=fs.readFileSync(new URL('../challenge-engine.js',import.meta.url),'utf8');
+const tide=fs.readFileSync(new URL('../tide-city-map.js',import.meta.url),'utf8');
+const sand=fs.readFileSync(new URL('../sand-clock-map.js',import.meta.url),'utf8');
+const styles=fs.readFileSync(new URL('../styles.css',import.meta.url),'utf8');
+const storage=fs.readFileSync(new URL('../storage.js',import.meta.url),'utf8');
+const audio=fs.readFileSync(new URL('../audio.js',import.meta.url),'utf8');
+const ui=fs.readFileSync(new URL('../ui.js',import.meta.url),'utf8');
+const player=fs.readFileSync(new URL('../player.js',import.meta.url),'utf8');
+const platform=fs.readFileSync(new URL('../platform.js',import.meta.url),'utf8');
+
+assert.ok(html.indexOf('./config.js')<html.indexOf('./i18n.js'));
+assert.ok(html.includes("if(typeof globalThis==='undefined')window.globalThis=window"),'older Android browsers receive the required globalThis compatibility shim');
+assert.ok(html.indexOf('./storage.js')<html.indexOf('./game.js'));
+assert.ok(html.indexOf('./audio.js')<html.indexOf('./game.js'));
+assert.ok(html.indexOf('./ui.js')<html.indexOf('./game.js'));
+assert.ok(html.indexOf('./player.js')<html.indexOf('./game.js'));
+assert.ok(html.indexOf('./i18n.js')<html.indexOf('./game.js'));
+assert.ok(html.indexOf('./mountain-map.js')<html.indexOf('./game.js'));
+assert.ok(html.indexOf('./challenge-engine.js')<html.indexOf('./mountain-map.js'));
+assert.ok(html.indexOf('./tide-city-map.js')<html.indexOf('./game.js')&&html.indexOf('./sand-clock-map.js')<html.indexOf('./game.js'));
+assert.ok(!html.includes('type="module"'),'local file mode remains supported');
+assert.ok(!game.includes('interval=')&&!game.includes('40:100'),'no artificial frame limiter remains');
+assert.ok(game.includes('requestAnimationFrame')&&game.includes('Math.min(.033'),'animation uses capped delta time');
+assert.ok(game.includes("document.addEventListener('visibilitychange'")&&game.includes("addEventListener('pagehide'"));
+assert.ok(game.includes("typeof ResizeObserver==='function'")&&game.includes("typeof IntersectionObserver==='function'"));
+assert.ok(game.includes("typeof screen.orientation.lock==='function'")&&platform.includes('webkitRequestFullscreen'));
+assert.ok(game.includes("root.dataset.touch=touchDevice()?'true':'false'")&&styles.includes('[data-touch="true"][data-mode="play"] .nr-touch'),'touch controls do not depend on unreliable CSS pointer detection');
+assert.ok(game.includes('setPointerCapture')&&game.includes('if(globalThis.PointerEvent)')&&game.includes("addEventListener('touchstart'"),'controls use unified Pointer Events with an old-browser touch fallback');
+assert.ok(audio.includes("window.AudioContext||window.webkitAudioContext")&&game.includes("typeof navigator.vibrate==='function'"));
+assert.ok(game.includes("director=createObstacleDirector({scene,difficulty:game.diff,seed:activeSeed})"),'restart records a reproducible challenge seed');
+assert.ok(game.includes('Sound.unlock()')&&audio.includes('if(!unlocked'),'audio stays silent until a user-started run unlocks Web Audio');
+assert.ok(game.includes('game.pendingPlan=plan'),'a plan is retained while waiting for its exact safe entry gap');
+assert.ok(game.includes('p.y+p.h>=floor()+40')&&game.includes('respawnRunnerFromDeathZone()'),'runner maps use an immediate shared DeathZone and safe checkpoint respawn');
+assert.ok(engine.includes("player.y+player.h>=floor+PLAYER.deathDepth")&&engine.includes("respawn(state,height,'death-zone')"),'all platform maps share immediate DeathZone checkpoint respawn');
+assert.ok(game.includes('map.update')&&game.includes('map.render')&&game.includes('challengeMap'),'challenge registry is connected to the live game loop');
+assert.ok(game.includes('autoRun:false')&&engine.includes("input.autoRun?1:0"),'platform maps stay still until directional input is pressed');
+assert.ok(html.includes('data-setting="motion"')&&storage.includes('reducedMotion'),'reduced-motion setting is persisted and available in the interface');
+assert.ok(game.includes('function drawActionCue')&&game.includes("icon='↑⚡'")&&game.includes("icon='↓⚡'"),'hazards advertise jump, slide, and dash responses');
+assert.ok(game.includes('function drawSpeedLines')&&game.includes('function drawEffects'),'speed and perfect-dodge feedback are rendered');
+assert.ok(player.includes('function ghost')&&player.includes('secondJump'),'runner has action-specific animation and dash afterimages');
+assert.ok(game.includes('const compact=H<460||W<560')&&styles.includes('@media(max-width:360px)'),'HUD and persistent branding have explicit small-screen layouts');
+assert.ok(styles.includes('--secondary-foreground:rgb(255,255,255)')&&styles.includes('#nova-run-game .btn{color:#fff'),'game controls retain white text on dark backgrounds even when the operating system uses a light theme');
+assert.ok(html.includes('data-setting="theme"')&&styles.includes('#nova-run-game[data-theme="light"]')&&game.includes("if(key==='theme'){refreshColors();seed();backgroundRenderer.resize")&&game.includes('backgroundRenderer.invalidate()'),'saved night and day modes update both HTML controls and cached canvas backgrounds');
+assert.ok(!html.includes('CONTENT UPDATE')&&!html.includes('LOCAL PROGRESS'),'temporary build subtitle was removed');
+assert.ok(html.includes('class="nr-logo-mark"')&&html.includes('class="nr-logo-n"')&&html.includes('<strong>NOVA</strong><em>RUN</em>'),'NOVA RUN uses an original vector badge and custom wordmark');
+assert.ok(html.includes('<span>MADE BY</span><strong>KAI</strong>')&&styles.includes('.nr-creator'),'creator credit uses a dedicated high-contrast seal');
+assert.ok(ui.includes('navigator.share')&&ui.includes('navigator.clipboard'),'results use Web Share with a clipboard fallback');
+assert.ok(html.includes('data-share-panel')&&ui.includes('openShareFallback')&&ui.includes("location.protocol==='https:'"),'file mode exposes a selectable manual-share dialog instead of a dead button');
+assert.ok(game.includes("'./assets/nova-cover.webp")&&game.includes("'./assets/nova-cover-mobile.webp"),'menu loads optimized desktop and portrait cover art');
+assert.ok(fs.existsSync(new URL('../assets/nova-cover.webp',import.meta.url))&&fs.existsSync(new URL('../assets/nova-cover-mobile.webp',import.meta.url)),'generated cover assets are stored with the project');
+assert.ok(html.includes('data-menu-console')&&html.includes('data-menu-start')&&styles.includes('.nr-menu-console'),'main menu is a responsive HTML control console instead of painted pseudo-buttons');
+const scenePreviewNames=['guangzhou','shanghai','shenzhen','snow','volcano','jiuzhaigou','dream-peak','tide-city','sand-clock'];
+for(const name of scenePreviewNames){const asset=new URL(`../assets/scene-previews/${name}.webp`,import.meta.url);assert.ok(fs.existsSync(asset),`${name} has a local generated map preview`);assert.ok(fs.statSync(asset).size<120000,`${name} preview stays lightweight for mobile browsers`)}
+assert.equal((html.match(/data-scene-card/g)||[]).length,9,'all nine maps have a dedicated illustrated selection card');
+assert.ok(html.includes('data-scene-mode="challenge"')&&html.includes('data-scene-tab="challenge"'),'Dreammist Prism Peak is separated into challenge mode');
+assert.ok(ui.includes('function setSceneMode')&&ui.includes('actions.sceneSelect')&&game.includes('sceneSelect:chooseScene'),'illustrated cards and mode tabs update the real saved scene');
+assert.ok(styles.includes('[data-game-type="challenge"] .nr-menu-meta')&&game.includes("tr(challenge?'stageMode':'parkourMode')"),'main menu clearly distinguishes endless running from stage challenge');
+assert.ok(styles.includes('[data-mode="menu"] .nr-quick-controls{display:none!important}'),'legacy floating controls cannot overlap the cover console');
+assert.ok(ui.includes("qa('[data-open-settings]')")&&ui.includes("qa('[data-open-profile]')"),'all premium menu and in-game panel triggers are wired');
+assert.ok(player.includes('phaseStrength=game.challenge?(moving?motion.intensity:0):1')&&player.includes('motion.intensity>.035'),'unified challenge runner has zero limb swing while stationary');
+assert.ok(player.includes('function movementProfile')&&player.includes('game.speed-range[0]'),'runner cadence and stride are driven by actual difficulty speed');
+assert.ok(audio.includes('const CHORDS=')&&audio.includes('function scheduleStep')&&audio.includes('function padVoice')&&!audio.includes('musicPulse'),'background audio is structured music rather than repeating alarm-like pulses');
+assert.ok(game.includes("url.searchParams.set('scene',scene)")&&game.includes("if(!isMountain())")&&game.includes("url.searchParams.set('seed',activeSeed)"),'stage links contain only a scene id while endless links retain reproducible parameters');
+assert.ok(storage.includes("key.startsWith('nova-run')"),'clear-save only removes NOVA RUN local keys');
+for(const source of [game,engine,mountain,tide,sand,storage,audio,ui,player]){
+  assert.ok(!source.includes('eval(')&&!source.includes('new Function'));
+  assert.ok(!source.includes('fetch(')&&!source.includes('XMLHttpRequest')&&!source.includes('WebSocket')&&!source.includes('sendBeacon'),'game remains offline-only with no tracking transport');
+}
+
+console.log('source and compatibility checks passed');
