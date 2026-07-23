@@ -6,6 +6,23 @@ function create(options){
   const scenePicker=q('[data-scene-picker]'),difficultyField=q('.nr-difficulty-setting'),skinSelect=q('[data-setting="skin"]'),content=globalThis.NovaRunConfig.CONTENT,PlayerRenderer=globalThis.NovaRunPlayerRenderer;
   let tutorialIndex=-1,lastSummary=null,toastTimer=0,sceneMode='runner',selectMenu=null,currentSettingsPage='map',modalWasOpen=false,settingsHistoryToken='',ignoreSettingsPop=false;
   const tutorialSteps=[['jump','tutorialJumpTitle','tutorialJumpText'],['slide','tutorialSlideTitle','tutorialSlideText'],['doubleJump','tutorialDoubleTitle','tutorialDoubleText'],['dashBreak','tutorialDashTitle','tutorialDashText'],['collect','tutorialCollectTitle','tutorialCollectText']];
+    const suppressButtonLongPress=event=>{
+    const target=event.target instanceof Element
+      ? event.target
+      : null;
+
+    if(target&&target.closest('button')){
+      event.preventDefault();
+    }
+  };
+
+  for(const eventName of [
+    'contextmenu',
+    'selectstart',
+    'dragstart'
+  ]){
+    root.addEventListener(eventName,suppressButtonLongPress);
+  }
   const safe=value=>String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
   function toast(text){clearTimeout(toastTimer);toastPanel.textContent=text;toastPanel.hidden=false;toastTimer=setTimeout(()=>{toastPanel.hidden=true},2600)}
   function modalState({resume=false}={}){const open=root.classList.contains('settings-open')||!profilePanel.hidden||!resultsPanel.hidden||!sharePanel.hidden||!confirmPanel.hidden||!installPanel.hidden||!!selectMenu?.open,changed=open!==modalWasOpen;root.classList.toggle('modal-open',open);modalWasOpen=open;if(changed&&open&&actions.modalOpen)actions.modalOpen();else if(changed&&!open&&actions.modalClose)actions.modalClose(!!resume)}
