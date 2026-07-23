@@ -104,12 +104,91 @@ function create(options){
     }
     const active=content.skins.find(item=>item.id===selected)||content.skins[0],signature=`NOVA SIGNATURE · ${String(content.skins.indexOf(active)+1).padStart(2,'0')}`;q('[data-skin-focus-name]').textContent=tr(active.nameKey||`skin_${active.id}`);q('[data-skin-focus-description]').textContent=tr(active.descriptionKey||`skinDesc_${active.id}`);q('[data-skin-focus-unlock]').textContent=unlocked.includes(active.id)?signature:`${tr('locked')} · ${skinNeed(active)}`;renderSkinCanvas(q('[data-skin-focus-canvas]'),active,420,260,true)
   }
-  function renderSettings(){
-    const state=storage.snapshot(),settings=state.settings,unlocked=storage.unlockedScenes(),challengeIds=globalThis.NovaRunConfig.CHALLENGE_SCENES||[],completed=new Set((state.challenge&&state.challenge.completed)||[]);
-    qa('[data-setting]').forEach(input=>{const key=input.dataset.setting;if(key==='scene'||key==='skin')return;if(input.type==='checkbox')input.checked=key==='motion'?!!settings.reducedMotion:!!settings[key];else input.value=settings[key]});
-    qa('[data-setting="scene"] option').forEach(option=>{const open=unlocked.includes(option.value)||option.value===settings.scene,need=unlockNeed(content.sceneUnlocks[option.value]);option.disabled=!open;option.textContent=`${tr(option.value)}${open?'':` · ${tr('locked')} · ${need}`}`});
-    qa('[data-scene-card]').forEach(card=>{const id=card.dataset.sceneValue,open=unlocked.includes(id)||id===settings.scene,need=unlockNeed(content.sceneUnlocks[id]),lock=card.querySelector('[data-scene-lock]'),complete=card.querySelector('[data-scene-complete]');card.disabled=false;card.dataset.locked=String(!open);card.dataset.unlockText=need;card.setAttribute('aria-label',open?tr(id):`${tr(id)} · ${tr('locked')} · ${need}`);card.setAttribute('aria-pressed',String(id===settings.scene));card.classList.toggle('is-selected',id===settings.scene);lock.hidden=open;lock.textContent=open?'':need;if(complete)complete.hidden=!completed.has(id)});
-    setSceneMode(challengeIds.includes(settings.scene)?'challenge':'runner');renderSkins();selectMenu?.refresh();
+    function renderSettings(){
+    const state=storage.snapshot();
+    const settings=state.settings;
+    const unlocked=storage.unlockedScenes();
+    const challengeIds=globalThis.NovaRunConfig.CHALLENGE_SCENES||[];
+    const completed=new Set(
+      (state.challenge&&state.challenge.completed)||[]
+    );
+
+    const selectedScene=unlocked.includes(settings.scene)
+      ? settings.scene
+      : 'guangzhou';
+
+    if(selectedScene!==settings.scene){
+      settings.scene=selectedScene;
+      storage.updateSettings({scene:selectedScene});
+    }
+
+    qa('[data-setting]').forEach(input=>{
+      const key=input.dataset.setting;
+
+      if(key==='scene'||key==='skin')return;
+
+      if(input.type==='checkbox'){
+        input.checked=key==='motion'
+          ? !!settings.reducedMotion
+          : !!settings[key];
+      }else{
+        input.value=settings[key];
+      }
+    });
+
+    qa('[data-setting="scene"] option').forEach(option=>{
+      const open=unlocked.includes(option.value);
+      const need=unlockNeed(content.sceneUnlocks[option.value]);
+
+      option.disabled=!open;
+      option.textContent=
+        `${tr(option.value)}${open?'':` · ${tr('locked')} · ${need}`}`;
+    });
+
+    qa('[data-scene-card]').forEach(card=>{
+      const id=card.dataset.sceneValue;
+      const open=unlocked.includes(id);
+      const need=unlockNeed(content.sceneUnlocks[id]);
+      const lock=card.querySelector('[data-scene-lock]');
+      const complete=card.querySelector('[data-scene-complete]');
+
+      card.disabled=false;
+      card.dataset.locked=String(!open);
+      card.dataset.unlockText=need;
+
+      card.setAttribute(
+        'aria-label',
+        open
+          ? tr(id)
+          : `${tr(id)} · ${tr('locked')} · ${need}`
+      );
+
+      card.setAttribute(
+        'aria-pressed',
+        String(id===selectedScene)
+      );
+
+      card.classList.toggle(
+        'is-selected',
+        id===selectedScene
+      );
+
+      lock.hidden=open;
+      lock.textContent=open?'':need;
+
+      if(complete){
+        complete.hidden=!completed.has(id);
+      }
+    });
+
+    setSceneMode(
+      challengeIds.includes(selectedScene)
+        ? 'challenge'
+        : 'runner'
+    );
+
+    renderSkins();
+    selectMenu?.refresh();
   }
   function renderProfile(){const state=storage.snapshot(),stats=state.stats,daily=storage.ensureDaily(),achievementIds=new Set(state.achievements);q('[data-profile-stats]').innerHTML=[['totalDistance',`${Math.floor(stats.distance)} m`],['totalRuns',stats.runs],['highestCombo',`×${stats.maxCombo}`],['totalCollects',stats.collects]].map(([key,value])=>`<div class="nr-stat"><span>${safe(tr(key))}</span><strong>${safe(value)}</strong></div>`).join('');q('[data-daily-list]').innerHTML=daily.tasks.map(task=>`<div class="nr-daily-item"><span>${safe(tr(`daily_${task.id}`,{target:task.target}))}</span><b>${task.progress}/${task.target}</b><div class="nr-daily-bar"><i style="width:${Math.min(100,task.progress/task.target*100)}%"></i></div></div>`).join('');q('[data-achievement-list]').innerHTML=content.achievements.map(item=>`<span class="nr-achievement ${achievementIds.has(item.id)?'unlocked':''}">${achievementIds.has(item.id)?'✓ ':'○ '}${safe(tr(`achievement_${item.id}`))}</span>`).join('')}
   function openProfile(){renderProfile();profilePanel.hidden=false;closeSettings({resume:false});modalState()}
@@ -135,7 +214,38 @@ function create(options){
   q('[data-close-settings]').addEventListener('click',()=>closeSettings({resume:true}));settingsBackdrop.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();closeSettings({resume:true})});qa('[data-open-profile]').forEach(button=>button.addEventListener('click',event=>{event.stopPropagation();openProfile()}));q('[data-close-profile]').addEventListener('click',()=>closeProfile(true));qa('[data-skip-tutorial]').forEach(button=>button.addEventListener('click',skipTutorial));
   qa('[data-settings-page]').forEach(tab=>tab.addEventListener('click',event=>{event.stopPropagation();setSettingsPage(tab.dataset.settingsPage)}));
   qa('[data-scene-tab]').forEach(tab=>tab.addEventListener('click',event=>{event.stopPropagation();setSceneMode(tab.dataset.sceneTab)}));
-  qa('[data-scene-card]').forEach(card=>card.addEventListener('click',event=>{event.stopPropagation();card.classList.add('is-choosing');updateSceneFocus(card);const release=()=>requestAnimationFrame(()=>{card.classList.remove('is-choosing');if(matchMedia('(pointer:coarse)').matches)card.blur()});if(card.dataset.locked==='true'){toast(`${tr('locked')} · ${card.dataset.unlockText||''}`);release();return}if(actions.sceneSelect&&actions.sceneSelect(card.dataset.sceneValue))renderSettings();release()}));
+    qa('[data-scene-card]').forEach(card=>{
+    card.addEventListener('click',event=>{
+      event.stopPropagation();
+
+      const release=()=>requestAnimationFrame(()=>{
+        card.classList.remove('is-choosing');
+
+        if(matchMedia('(pointer:coarse)').matches){
+          card.blur();
+        }
+      });
+
+      if(card.dataset.locked==='true'){
+        toast(
+          `${tr('locked')} · ${card.dataset.unlockText||''}`
+        );
+        release();
+        return;
+      }
+
+      card.classList.add('is-choosing');
+
+      if(
+        actions.sceneSelect &&
+        actions.sceneSelect(card.dataset.sceneValue)
+      ){
+        renderSettings();
+      }
+
+      release();
+    });
+  });
   qa('[data-skin-card]').forEach(card=>card.addEventListener('click',event=>{event.stopPropagation();const id=card.dataset.skinCard;if(card.dataset.locked==='true'){const item=content.skins.find(skin=>skin.id===id);toast(`${tr('locked')} · ${skinNeed(item)}`);return}skinSelect.value=id;skinSelect.dispatchEvent(new Event('input',{bubbles:true}));skinSelect.dispatchEvent(new Event('change',{bubbles:true}))}));
   qa('[data-setting]').forEach(input=>{const key=input.dataset.setting;if(['language','difficulty','scene','motion'].includes(key))return;const read=()=>input.type==='checkbox'?input.checked:input.type==='range'?Number(input.value):input.value;if(input.type==='range'){input.addEventListener('input',()=>{if(actions.previewSetting)actions.previewSetting(key,read())});input.addEventListener('change',()=>actions.setting(key,read()))}else input.addEventListener('change',()=>{actions.setting(key,read());renderSettings()})});
   q('[data-clear-save]').addEventListener('click',()=>{confirmPanel.hidden=false;modalState()});qa('[data-confirm-cancel]').forEach(button=>button.addEventListener('click',()=>{confirmPanel.hidden=true;modalState()}));q('[data-confirm-clear]').addEventListener('click',()=>{storage.clearAll();location.reload()});
