@@ -1064,3 +1064,355 @@ html,body{height:100%;min-height:100%;overflow:hidden;overscroll-behavior:none}
   #nova-run-game[data-settings-page="map"] .nr-scene-focus strong{min-height:1.2em}
   #nova-run-game[data-settings-page="map"] .nr-difficulty-setting{margin:0}
 }
+/* =========================================================
+   NOVA RUN — FINAL MOBILE REGRESSION FIX
+   Scope:
+   - mobile portrait
+   - low-height mobile landscape
+   Does not change desktop, PWA, game logic, saves or map data.
+   ========================================================= */
+
+/* Remove the old mobile fade mask that can create a dark/light
+   block above the settings panel. */
+#nova-run-game.settings-open .nr-toolbar {
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+
+/* =========================================================
+   MOBILE MAP COVER GEOMETRY
+   ========================================================= */
+@media (max-width: 700px) {
+
+  /* Current-route preview:
+     replace the old short fixed-height crop with a stable ratio. */
+  #nova-run-game[data-settings-page="map"] .nr-scene-focus > img {
+    display: block;
+    width: 100%;
+    height: auto !important;
+    min-height: 0 !important;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    object-position: center center;
+  }
+
+  /* Challenge-map covers:
+     the old mobile layout used an excessively short 16/7 strip. */
+  #nova-run-game[data-settings-page="map"]
+  .nr-scene-challenge
+  .nr-scene-image {
+    display: block;
+    width: 100%;
+    height: auto !important;
+    min-height: 0 !important;
+    aspect-ratio: 16 / 9 !important;
+    overflow: hidden;
+  }
+
+  #nova-run-game[data-settings-page="map"] .nr-scene-image img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center center;
+  }
+}
+
+/* =========================================================
+   CHALLENGE MODE — PORTRAIT TOP HUD
+   Challenge status panel is painted at the top of the canvas.
+   Put the HTML logo and controls below it.
+   ========================================================= */
+@media (pointer: coarse) and (orientation: portrait) {
+
+  #nova-run-game[data-game-type="challenge"][data-mode="play"]
+  .nr-brand,
+  #nova-run-game[data-game-type="challenge"][data-mode="pause"]
+  .nr-brand {
+    top: calc(
+      var(--safe-top) +
+      var(--visual-top-offset, 0px) +
+      82px
+    ) !important;
+
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+  }
+
+  #nova-run-game[data-game-type="challenge"][data-mode="play"]
+  .nr-orientation,
+  #nova-run-game[data-game-type="challenge"][data-mode="pause"]
+  .nr-orientation {
+    top: calc(
+      var(--safe-top) +
+      var(--visual-top-offset, 0px) +
+      142px
+    ) !important;
+
+    left: calc(var(--safe-left) + 10px) !important;
+  }
+
+  #nova-run-game[data-game-type="challenge"][data-mode="play"]
+  .nr-quick-controls,
+  #nova-run-game[data-game-type="challenge"][data-mode="pause"]
+  .nr-quick-controls {
+    top: calc(
+      var(--safe-top) +
+      var(--visual-top-offset, 0px) +
+      142px
+    ) !important;
+
+    right: calc(var(--safe-right) + 10px) !important;
+  }
+}
+
+/* =========================================================
+   MOBILE LANDSCAPE
+   ========================================================= */
+@media (pointer: coarse) and
+       (orientation: landscape) and
+       (max-height: 600px) {
+
+  /* The challenge status panel occupies approximately y=18–72.
+     Keep the orientation button beneath it. */
+  #nova-run-game[data-game-type="challenge"][data-mode="play"]
+  .nr-orientation,
+  #nova-run-game[data-game-type="challenge"][data-mode="pause"]
+  .nr-orientation {
+    top: calc(
+      var(--safe-top) +
+      var(--visual-top-offset, 0px) +
+      82px
+    ) !important;
+
+    left: calc(var(--safe-left) + 10px) !important;
+  }
+
+  /* Restore only the challenge left/right SVG arrows.
+     Do not alter jump, dash or slide labels. */
+  #nova-run-game[data-game-type="challenge"]
+  .nr-move
+  .btn > span[aria-hidden="true"] {
+    display: grid !important;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  #nova-run-game[data-game-type="challenge"]
+  .nr-move
+  .btn svg {
+    display: block !important;
+    width: 27px;
+    height: 27px;
+    overflow: visible;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* Outer settings body owns scrolling.
+     This replaces the broken nested clipping chain. */
+  #nova-run-game[data-settings-page="map"]
+  .nr-settings-scroll {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding-bottom: calc(20px + var(--safe-bottom));
+  }
+
+  #nova-run-game[data-settings-page="map"]
+  [data-settings-section="map"] {
+    grid-template-rows: auto auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    padding-bottom: calc(18px + var(--safe-bottom));
+  }
+
+  #nova-run-game[data-settings-page="map"]
+  .nr-scene-picker {
+    display: grid !important;
+
+    /* Fractional columns shrink safely on narrower phones.
+       No fixed minimum width that can force horizontal overflow. */
+    grid-template-columns:
+      minmax(0, 0.92fr)
+      minmax(0, 1.08fr) !important;
+
+    grid-template-rows: auto auto auto !important;
+    align-items: start;
+    gap: 7px 10px;
+
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+  }
+
+  #nova-run-game[data-settings-page="map"]
+  .nr-scene-picker-head,
+  #nova-run-game[data-settings-page="map"]
+  .nr-scene-tabs {
+    grid-column: 1 / -1 !important;
+  }
+
+  /* Left column: real selectable cards. */
+  #nova-run-game[data-settings-page="map"]
+  .nr-scene-grid {
+    grid-column: 1 !important;
+    grid-row: 3 !important;
+
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    align-content: start;
+    gap: 7px;
+
+    width: 100%;
+    height: auto !important;
+    min-height: 0 !important;
+
+    overflow: visible !important;
+    padding: 0 4px calc(18px + var(--safe-bottom)) 0;
+
+    position: relative;
+    z-index: 4;
+    pointer-events: auto !important;
+  }
+
+  /* Right column: current-route preview.
+     It cannot cover or steal taps from the left list. */
+  #nova-run-game[data-settings-page="map"]
+  .nr-scene-focus {
+    grid-column: 2 !important;
+    grid-row: 3 !important;
+
+    position: relative !important;
+    top: auto !important;
+    align-self: start;
+
+    width: 100%;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0;
+
+    overflow: hidden;
+    z-index: 1;
+    pointer-events: none !important;
+  }
+
+  #nova-run-game[data-settings-page="map"]
+  .nr-scene-focus > img {
+    display: block;
+    width: 100%;
+    height: auto !important;
+    min-height: 0 !important;
+    aspect-ratio: 16 / 9;
+
+    object-fit: cover;
+    object-position: center center;
+  }
+
+  /* Only visible cards are forced into the landscape layout.
+     Hidden cards from the other mode remain hidden. */
+  #nova-run-game[data-settings-page="map"]
+  .nr-scene-card:not([hidden]) {
+    display: grid !important;
+    grid-template-columns: 116px minmax(0, 1fr) !important;
+    grid-column: auto !important;
+
+    width: 100%;
+    height: auto !important;
+    min-height: 84px !important;
+
+    padding: 0;
+    flex-shrink: 0;
+
+    position: relative;
+    z-index: 5;
+
+    overflow: hidden;
+    cursor: pointer;
+    pointer-events: auto !important;
+    touch-action: manipulation;
+  }
+
+  #nova-run-game[data-settings-page="map"]
+  .nr-scene-card:not([hidden])
+  .nr-scene-image {
+    display: block;
+    width: 116px;
+    height: 84px !important;
+    min-height: 84px !important;
+    aspect-ratio: auto !important;
+
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  #nova-run-game[data-settings-page="map"]
+  .nr-scene-card:not([hidden])
+  .nr-scene-image img {
+    display: block;
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+    object-position: center center;
+    pointer-events: none;
+  }
+
+  #nova-run-game[data-settings-page="map"]
+  .nr-scene-card:not([hidden])
+  .nr-scene-copy {
+    min-width: 0;
+    min-height: 84px;
+
+    align-content: center;
+    padding: 7px 9px;
+
+    pointer-events: none;
+  }
+
+  /* Every visual child ignores touch so the button itself
+     receives the click. */
+  #nova-run-game[data-settings-page="map"]
+  .nr-scene-image::after,
+  #nova-run-game[data-settings-page="map"]
+  .nr-scene-image > i,
+  #nova-run-game[data-settings-page="map"]
+  .nr-scene-image > em,
+  #nova-run-game[data-settings-page="map"]
+  .nr-scene-image > mark {
+    pointer-events: none !important;
+  }
+}
+
+/* Extra-narrow landscape fallback:
+   stack the preview and cards instead of squeezing both columns. */
+@media (pointer: coarse) and
+       (orientation: landscape) and
+       (max-height: 600px) and
+       (max-width: 680px) {
+
+  #nova-run-game[data-settings-page="map"]
+  .nr-scene-picker {
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: auto auto auto auto !important;
+  }
+
+  #nova-run-game[data-settings-page="map"]
+  .nr-scene-focus {
+    grid-column: 1 !important;
+    grid-row: 3 !important;
+  }
+
+  #nova-run-game[data-settings-page="map"]
+  .nr-scene-grid {
+    grid-column: 1 !important;
+    grid-row: 4 !important;
+  }
+}
