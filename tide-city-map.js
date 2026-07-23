@@ -98,6 +98,7 @@ function render(ctx,state,width,height,theme,api){
     ctx.fillStyle=`rgba(77,174,168,${state.respawnFlash*.42})`;
     ctx.fillRect(0,0,width,height);
   }
+}
 const map=engine.createMap({id:'tideCity',worldLength:WORLD_LENGTH,player:PLAYER,platforms:PLATFORMS,checkpoints:CHECKPOINTS,collectibles:COLLECTIBLES,hazards:HAZARDS,finish:FINISH,floorRatio:.82,requiredMechanisms:['buoyant'],minCheckpoints:5,createState:()=>({tideFrozenUntil:0,frozenTide:.5,valveCooldown:0,brokenGrates:new Set()}),platformMotion,environment,blockers,afterPhysics,score,render,validate:()=>PLATFORMS.filter(p=>p.type==='buoyant').length>=4?[]:['missing-buoyant-platforms']});
 globalThis.NovaTideCityMap=Object.freeze({...map,CURRENT_ZONES,SLUICE,GRATE,FINISH,tideAmount,waterLevel});
 })();
