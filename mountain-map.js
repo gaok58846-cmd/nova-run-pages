@@ -95,7 +95,56 @@ function render(ctx,state,width,height,theme={}){
 
   ctx.restore();
 
-  ctx.save();ctx.fillStyle='rgba(38,42,44,.72)';rounded(ctx,18,18,250,54,14,ctx.fillStyle,'rgba(244,224,190,.35)');ctx.fillStyle='#fff0d0';ctx.font='600 13px system-ui';ctx.fillText(`◇ ${state.collected.size}/4   ⚑ ${state.checkpoint+1}/${CHECKPOINTS.length}   ☠ ${state.deaths}`,34,41);ctx.fillStyle='#e9953d';ctx.fillText(`${state.hiddenFound?'HIDDEN RIDGE FOUND':'DREAM PEAK'}   ${state.manualControl?'MANUAL':'AUTO ▶'}`,34,61);ctx.restore();
+    ctx.save();
+
+  const portraitHud=height>width;
+  const challengeHudWidth=portraitHud
+    ? Math.min(width-32,360)
+    : 250;
+
+  const challengeHudX=portraitHud
+    ? (width-challengeHudWidth)/2
+    : 18;
+
+  const challengeHudY=portraitHud
+    ? 76
+    : 18;
+
+  const challengeHudFont=portraitHud&&width<370
+    ? 12
+    : 13;
+
+  ctx.fillStyle='rgba(38,42,44,.72)';
+
+  rounded(
+    ctx,
+    challengeHudX,
+    challengeHudY,
+    challengeHudWidth,
+    54,
+    14,
+    ctx.fillStyle,
+    'rgba(244,224,190,.35)'
+  );
+
+  ctx.fillStyle='#fff0d0';
+  ctx.font=`600 ${challengeHudFont}px system-ui`;
+
+  ctx.fillText(
+    `◇ ${state.collected.size}/4   ⚑ ${state.checkpoint+1}/${CHECKPOINTS.length}   ☠ ${state.deaths}`,
+    challengeHudX+16,
+    challengeHudY+23
+  );
+
+  ctx.fillStyle='#e9953d';
+
+  ctx.fillText(
+    `${state.hiddenFound?'HIDDEN RIDGE FOUND':'DREAM PEAK'}   ${state.manualControl?'MANUAL':'AUTO ▶'}`,
+    challengeHudX+16,
+    challengeHudY+43
+  );
+
+  ctx.restore();
   if(state.respawnFlash>0&&!state.reducedMotion){ctx.fillStyle=`rgba(233,126,39,${state.respawnFlash*.55})`;ctx.fillRect(0,0,width,height)}
 }
 
