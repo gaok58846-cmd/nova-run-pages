@@ -61,7 +61,7 @@ function renderBackground(ctx,state,width,height){
   polygon(ctx,[[-80,base],[width*.2,base-height*.22],[width*.36,base],[width*.66,base-height*.28],[width+80,base],[width+80,height],[-80,height]],'#23292d');
   ctx.save();ctx.globalAlpha=.18;ctx.fillStyle='#fff9e8';for(let i=0;i<5;i++){const y=floor-125+i*30,drift=state.reducedMotion?0:Math.sin(state.time*.12+i)*60;ctx.beginPath();ctx.ellipse(width*.5+drift,y,width*(.34+i*.035),12+i*3,0,0,Math.PI*2);ctx.fill()}ctx.restore();
   ctx.fillStyle='#34383a';for(let i=0;i<7;i++){const x=(i*311-state.cameraX*.08)%(width+100);ctx.fillRect(x<0?x+width+100:x,floor-6-(i%3)*4,34+i%2*18,5)}
-  ctx.strokeStyle='#464a4d';ctx.lineWidth=2;for(let i=0;i<5;i++){const x=width*.5+i*17+Math.sin(i)*10,y=height*.13+i%2*8;ctx.beginPath();ctx.arc(x,y,8,Math.PI*1.1,Math.PI*1.85);ctx.stroke()}
+  // Removed ambiguous bird arcs that overlapped the NOVA RUN branding.
 }
 
 function drawPlatform(ctx,rect,state){
