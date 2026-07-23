@@ -6,14 +6,22 @@ function create(options){
   const scenePicker=q('[data-scene-picker]'),difficultyField=q('.nr-difficulty-setting'),skinSelect=q('[data-setting="skin"]'),content=globalThis.NovaRunConfig.CONTENT,PlayerRenderer=globalThis.NovaRunPlayerRenderer;
   let tutorialIndex=-1,lastSummary=null,toastTimer=0,sceneMode='runner',selectMenu=null,currentSettingsPage='map',modalWasOpen=false,settingsHistoryToken='',ignoreSettingsPop=false;
   const tutorialSteps=[['jump','tutorialJumpTitle','tutorialJumpText'],['slide','tutorialSlideTitle','tutorialSlideText'],['doubleJump','tutorialDoubleTitle','tutorialDoubleText'],['dashBreak','tutorialDashTitle','tutorialDashText'],['collect','tutorialCollectTitle','tutorialCollectText']];
-    const suppressButtonLongPress=event=>{
+      const suppressGameLongPress=event=>{
     const target=event.target instanceof Element
       ? event.target
       : null;
 
-    if(target&&target.closest('button')){
-      event.preventDefault();
+    if(!target)return;
+
+    if(
+      target.closest(
+        'input, textarea, select, [contenteditable="true"]'
+      )
+    ){
+      return;
     }
+
+    event.preventDefault();
   };
 
   for(const eventName of [
@@ -21,7 +29,11 @@ function create(options){
     'selectstart',
     'dragstart'
   ]){
-    root.addEventListener(eventName,suppressButtonLongPress);
+    root.addEventListener(
+      eventName,
+      suppressGameLongPress,
+      {capture:true}
+    );
   }
   const safe=value=>String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
   function toast(text){clearTimeout(toastTimer);toastPanel.textContent=text;toastPanel.hidden=false;toastTimer=setTimeout(()=>{toastPanel.hidden=true},2600)}
@@ -64,6 +76,8 @@ function create(options){
 
   function setSceneMode(mode){
     sceneMode=mode==='challenge'?'challenge':'runner';
+    root.dataset.settingsSceneMode=sceneMode;
+difficultyField.hidden=sceneMode==='challenge';
 
     qa('[data-scene-tab]').forEach(tab=>{
       tab.setAttribute(
@@ -92,7 +106,7 @@ function create(options){
   function unlockNeed(rule){return typeof rule==='number'?`${rule}m`:typeof rule==='string'?rule.replace('runs:','×'):rule&&rule.complete?`✓ ${tr(rule.complete)}`:''}
   function skinNeed(item){return item.distance?`${item.distance}m`:item.collects?`${item.collects} ${tr('totalCollects')}`:item.combo?`×${item.combo}`:''}
   function previewTheme(){const css=getComputedStyle(root),value=(name,fallback)=>css.getPropertyValue(name).trim()||fallback;return{bg:value('--background','#181919'),card:value('--card','#2d2e2d'),fg:value('--foreground','#f8f2e9'),one:value('--viz-series-1','#83c3ff'),two:value('--viz-series-2','#d97753'),three:value('--viz-series-3','#74d58b')}}
-  function renderSkinCanvas(canvas,skin,width,height,large=false){const dpr=Math.min(2,devicePixelRatio||1);canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);canvas.style.aspectRatio=`${width}/${height}`;const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);PlayerRenderer.drawPreview(ctx,{skin,theme:previewTheme(),width,height,reducedMotion:storage.settings().reducedMotion,dash:large})}
+  function renderSkinCanvas(canvas,skin,width,height,large=false){const dpr=Math.min(2,devicePixelRatio||1);canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);canvas.style.aspectRatio=`${width}/${height}`;const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);PlayerRenderer.drawPreview(ctx,{skin,theme:previewTheme(),width,height,reducedMotion:storage.settings().reducedMotion,dash:false})}
   function renderSkins(){
     const settings=storage.settings(),unlocked=storage.unlockedSkins(),selected=unlocked.includes(settings.skin)?settings.skin:'nova';
     skinSelect.innerHTML=content.skins.map(item=>`<option value="${safe(item.id)}"${unlocked.includes(item.id)?'':' disabled'}>${safe(tr(item.nameKey||`skin_${item.id}`))}${unlocked.includes(item.id)?'':` · ${safe(skinNeed(item))}`}</option>`).join('');
