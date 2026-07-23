@@ -6,23 +6,97 @@ function create(options){
   const scenePicker=q('[data-scene-picker]'),difficultyField=q('.nr-difficulty-setting'),skinSelect=q('[data-setting="skin"]'),content=globalThis.NovaRunConfig.CONTENT,PlayerRenderer=globalThis.NovaRunPlayerRenderer;
   let tutorialIndex=-1,lastSummary=null,toastTimer=0,sceneMode='runner',selectMenu=null,currentSettingsPage='map',modalWasOpen=false,settingsHistoryToken='',ignoreSettingsPop=false;
   const tutorialSteps=[['jump','tutorialJumpTitle','tutorialJumpText'],['slide','tutorialSlideTitle','tutorialSlideText'],['doubleJump','tutorialDoubleTitle','tutorialDoubleText'],['dashBreak','tutorialDashTitle','tutorialDashText'],['collect','tutorialCollectTitle','tutorialCollectText']];
-      const suppressGameLongPress=event=>{
-    const target=event.target instanceof Element
-      ? event.target
+        /* =========================================================
+     NOVA RUN — CROSS-BROWSER LONG-PRESS GUARD V20
+
+     Goals:
+     - block text selection and callout menus
+     - suppress browser long-press handling
+     - preserve normal taps
+     - preserve scrolling when a gesture starts on a card
+     - leave inputs, selects and textareas untouched
+     ========================================================= */
+
+  const LONG_PRESS_LIMIT=480;
+  const DRAG_THRESHOLD=10;
+
+  const guardedPointer={
+    id:null,
+    button:null,
+    scrollHost:null,
+    startX:0,
+    startY:0,
+    lastX:0,
+    lastY:0,
+    startTime:0,
+    moved:false
+  };
+
+  let suppressedButton=null;
+  let suppressClickUntil=0;
+
+  const asElement=target=>
+    target instanceof Element
+      ? target
       : null;
 
-    if(!target)return;
+  const buttonFrom=target=>
+    asElement(target)?.closest('button,[role="button"]')||null;
 
-    if(
-      target.closest(
-        'input, textarea, select, [contenteditable="true"]'
-      )
-    ){
+  const isEditableTarget=target=>
+    !!asElement(target)?.closest(
+      'input,textarea,select,[contenteditable="true"]'
+    );
+
+  function findScrollableAncestor(element){
+    let node=element?.parentElement||null;
+
+    while(node&&node!==root){
+      const style=getComputedStyle(node);
+
+      const scrollX=
+        /(auto|scroll)/.test(style.overflowX)&&
+        node.scrollWidth>node.clientWidth+1;
+
+      const scrollY=
+        /(auto|scroll)/.test(style.overflowY)&&
+        node.scrollHeight>node.clientHeight+1;
+
+      if(scrollX||scrollY){
+        return node;
+      }
+
+      node=node.parentElement;
+    }
+
+    return null;
+  }
+
+  function clearGameSelection(){
+    const selection=document.getSelection?.();
+
+    if(selection&&!selection.isCollapsed){
+      selection.removeAllRanges();
+    }
+  }
+
+  function blockNativeLongPress(event){
+    if(isEditableTarget(event.target)){
       return;
     }
 
-    event.preventDefault();
-  };
+    const button=buttonFrom(event.target);
+
+    if(!button||!root.contains(button)){
+      return;
+    }
+
+    if(event.cancelable){
+      event.preventDefault();
+    }
+
+    clearGameSelection();
+  }
 
   for(const eventName of [
     'contextmenu',
@@ -31,8 +105,379 @@ function create(options){
   ]){
     root.addEventListener(
       eventName,
-      suppressGameLongPress,
-      {capture:true}
+      blockNativeLongPress,
+      {
+        capture:true,
+        passive:false
+      }
+    );
+  }
+
+  document.addEventListener(
+    'selectionchange',
+    ()=>{
+      const selection=document.getSelection?.();
+      const anchor=selection?.anchorNode;
+
+      const element=
+        anchor?.nodeType===Node.ELEMENT_NODE
+          ? anchor
+          : anchor?.parentElement;
+
+      if(
+        element&&
+        root.contains(element)&&
+        buttonFrom(element)&&
+        !isEditableTarget(element)
+      ){
+        selection.removeAllRanges();
+      }
+    }
+  );
+
+  function resetGuardedPointer(){
+    guardedPointer.id=null;
+    guardedPointer.button=null;
+    guardedPointer.scrollHost=null;
+    guardedPointer.startX=0;
+    guardedPointer.startY=0;
+    guardedPointer.lastX=0;
+    guardedPointer.lastY=0;
+    guardedPointer.startTime=0;
+    guardedPointer.moved=false;
+  }
+
+  function suppressFollowingClick(button){
+    suppressedButton=button;
+    suppressClickUntil=performance.now()+400;
+  }
+
+  root.addEventListener(
+    'click',
+    event=>{
+      const button=buttonFrom(event.target);
+
+      if(
+        button&&
+        button===suppressedButton&&
+        performance.now()<=suppressClickUntil
+      ){
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+        suppressedButton=null;
+        suppressClickUntil=0;
+      }
+    },
+    {
+      capture:true
+    }
+  );
+
+  if('PointerEvent' in window){
+
+    root.addEventListener(
+      'pointerdown',
+      event=>{
+        if(
+          event.pointerType!=='touch'&&
+          event.pointerType!=='pen'
+        ){
+          return;
+        }
+
+        const button=buttonFrom(event.target);
+
+        if(
+          !button||
+          !root.contains(button)||
+          button.disabled||
+          button.matches('[aria-disabled="true"]')||
+          isEditableTarget(button)
+        ){
+          return;
+        }
+
+        /*
+         * Gameplay action buttons already have dedicated pointer
+         * handling inside game.js. Do not duplicate their logic.
+         */
+        if(button.matches('[data-act]')){
+          return;
+        }
+
+        guardedPointer.id=event.pointerId;
+        guardedPointer.button=button;
+        guardedPointer.scrollHost=
+          findScrollableAncestor(button);
+
+        guardedPointer.startX=event.clientX;
+        guardedPointer.startY=event.clientY;
+        guardedPointer.lastX=event.clientX;
+        guardedPointer.lastY=event.clientY;
+        guardedPointer.startTime=performance.now();
+        guardedPointer.moved=false;
+
+        try{
+          button.setPointerCapture(event.pointerId);
+        }catch(error){}
+      },
+      {
+        capture:true
+      }
+    );
+
+    root.addEventListener(
+      'pointermove',
+      event=>{
+        if(event.pointerId!==guardedPointer.id){
+          return;
+        }
+
+        const totalX=
+          event.clientX-guardedPointer.startX;
+
+        const totalY=
+          event.clientY-guardedPointer.startY;
+
+        if(
+          !guardedPointer.moved&&
+          Math.hypot(totalX,totalY)>DRAG_THRESHOLD
+        ){
+          guardedPointer.moved=true;
+        }
+
+        if(
+          guardedPointer.moved&&
+          guardedPointer.scrollHost
+        ){
+          if(event.cancelable){
+            event.preventDefault();
+          }
+
+          const moveX=
+            event.clientX-guardedPointer.lastX;
+
+          const moveY=
+            event.clientY-guardedPointer.lastY;
+
+          guardedPointer.scrollHost.scrollLeft-=moveX;
+          guardedPointer.scrollHost.scrollTop-=moveY;
+        }
+
+        guardedPointer.lastX=event.clientX;
+        guardedPointer.lastY=event.clientY;
+      },
+      {
+        capture:true,
+        passive:false
+      }
+    );
+
+    const finishPointerGuard=(event,cancelled=false)=>{
+      if(event.pointerId!==guardedPointer.id){
+        return;
+      }
+
+      const button=guardedPointer.button;
+
+      const elapsed=
+        performance.now()-guardedPointer.startTime;
+
+      if(
+        button&&
+        (
+          cancelled||
+          guardedPointer.moved||
+          elapsed>=LONG_PRESS_LIMIT
+        )
+      ){
+        suppressFollowingClick(button);
+      }
+
+      try{
+        button?.releasePointerCapture(event.pointerId);
+      }catch(error){}
+
+      resetGuardedPointer();
+    };
+
+    root.addEventListener(
+      'pointerup',
+      event=>finishPointerGuard(event,false),
+      {
+        capture:true
+      }
+    );
+
+    root.addEventListener(
+      'pointercancel',
+      event=>finishPointerGuard(event,true),
+      {
+        capture:true
+      }
+    );
+
+  }else{
+
+    /*
+     * Legacy fallback for browsers without Pointer Events.
+     * touchstart must be non-passive so the browser's native
+     * long-press handling can be cancelled.
+     */
+    const legacyTouch={
+      id:null,
+      button:null,
+      scrollHost:null,
+      startX:0,
+      startY:0,
+      lastX:0,
+      lastY:0,
+      startTime:0,
+      moved:false
+    };
+
+    const resetLegacyTouch=()=>{
+      legacyTouch.id=null;
+      legacyTouch.button=null;
+      legacyTouch.scrollHost=null;
+      legacyTouch.moved=false;
+    };
+
+    root.addEventListener(
+      'touchstart',
+      event=>{
+        if(event.touches.length!==1){
+          return;
+        }
+
+        const button=buttonFrom(event.target);
+
+        if(
+          !button||
+          !root.contains(button)||
+          button.disabled||
+          button.matches('[aria-disabled="true"]')||
+          button.matches('[data-act]')||
+          isEditableTarget(button)
+        ){
+          return;
+        }
+
+        const touch=event.touches[0];
+
+        event.preventDefault();
+
+        legacyTouch.id=touch.identifier;
+        legacyTouch.button=button;
+        legacyTouch.scrollHost=
+          findScrollableAncestor(button);
+
+        legacyTouch.startX=touch.clientX;
+        legacyTouch.startY=touch.clientY;
+        legacyTouch.lastX=touch.clientX;
+        legacyTouch.lastY=touch.clientY;
+        legacyTouch.startTime=performance.now();
+        legacyTouch.moved=false;
+      },
+      {
+        capture:true,
+        passive:false
+      }
+    );
+
+    root.addEventListener(
+      'touchmove',
+      event=>{
+        const touch=Array.from(event.touches).find(
+          item=>item.identifier===legacyTouch.id
+        );
+
+        if(!touch){
+          return;
+        }
+
+        event.preventDefault();
+
+        const totalX=
+          touch.clientX-legacyTouch.startX;
+
+        const totalY=
+          touch.clientY-legacyTouch.startY;
+
+        if(
+          !legacyTouch.moved&&
+          Math.hypot(totalX,totalY)>DRAG_THRESHOLD
+        ){
+          legacyTouch.moved=true;
+        }
+
+        if(
+          legacyTouch.moved&&
+          legacyTouch.scrollHost
+        ){
+          const moveX=
+            touch.clientX-legacyTouch.lastX;
+
+          const moveY=
+            touch.clientY-legacyTouch.lastY;
+
+          legacyTouch.scrollHost.scrollLeft-=moveX;
+          legacyTouch.scrollHost.scrollTop-=moveY;
+        }
+
+        legacyTouch.lastX=touch.clientX;
+        legacyTouch.lastY=touch.clientY;
+      },
+      {
+        capture:true,
+        passive:false
+      }
+    );
+
+    root.addEventListener(
+      'touchend',
+      event=>{
+        const touch=Array.from(event.changedTouches).find(
+          item=>item.identifier===legacyTouch.id
+        );
+
+        if(!touch){
+          return;
+        }
+
+        event.preventDefault();
+
+        const elapsed=
+          performance.now()-legacyTouch.startTime;
+
+        const button=legacyTouch.button;
+
+        const shouldActivate=
+          button&&
+          !legacyTouch.moved&&
+          elapsed<LONG_PRESS_LIMIT;
+
+        resetLegacyTouch();
+
+        if(shouldActivate){
+          button.click();
+        }
+      },
+      {
+        capture:true,
+        passive:false
+      }
+    );
+
+    root.addEventListener(
+      'touchcancel',
+      ()=>{
+        resetLegacyTouch();
+      },
+      {
+        capture:true
+      }
     );
   }
   const safe=value=>String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
