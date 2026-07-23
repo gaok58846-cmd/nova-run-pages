@@ -41,8 +41,54 @@ function create(options){
   }
   function openSettings(page){renderSettings();root.classList.add('settings-open');settingsPanel.setAttribute('aria-hidden','false');profilePanel.hidden=true;setSettingsPage(page||root.dataset.settingsPage||'map');pushSettingsHistory();modalState()}
   function closeSettings({resume=false,consumeHistory=true}={}){selectMenu?.close('settings-close');qa('.is-choosing').forEach(card=>card.classList.remove('is-choosing'));root.classList.remove('settings-open');settingsPanel.setAttribute('aria-hidden','true');clearSettingsHistory(consumeHistory);modalState({resume})}
-  function updateSceneFocus(card){if(!card)return;const id=card.dataset.sceneValue,image=card.querySelector('img'),preview=tr(`preview_${id}`),parts=preview.split(/\s*[·•]\s*/).filter(Boolean);q('[data-scene-focus-image]').src=image.src;q('[data-scene-focus-name]').textContent=tr(id);q('[data-scene-focus-copy]').textContent=preview;q('[data-scene-focus-tags]').innerHTML=parts.slice(0,3).map(part=>`<b>${safe(part)}</b>`).join('')}
-  function setSceneMode(mode){sceneMode=mode==='challenge'?'challenge':'runner';qa('[data-scene-tab]').forEach(tab=>tab.setAttribute('aria-selected',String(tab.dataset.sceneTab===sceneMode)));let focus=null;qa('[data-scene-card]').forEach(card=>{card.hidden=card.dataset.sceneMode!==sceneMode;if(!card.hidden&&(card.classList.contains('is-selected')||!focus))focus=card});updateSceneFocus(focus)}
+    function updateSceneFocus(card){
+    const panel=q('[data-scene-focus]');
+
+    panel.hidden=!card;
+
+    if(!card)return;
+
+    const id=card.dataset.sceneValue;
+    const image=card.querySelector('img');
+    const preview=tr(`preview_${id}`);
+    const parts=preview.split(/\s*[·•]\s*/).filter(Boolean);
+
+    q('[data-scene-focus-image]').src=image.src;
+    q('[data-scene-focus-name]').textContent=tr(id);
+    q('[data-scene-focus-copy]').textContent=preview;
+    q('[data-scene-focus-tags]').innerHTML=parts
+      .slice(0,3)
+      .map(part=>`<b>${safe(part)}</b>`)
+      .join('');
+  }
+
+  function setSceneMode(mode){
+    sceneMode=mode==='challenge'?'challenge':'runner';
+
+    qa('[data-scene-tab]').forEach(tab=>{
+      tab.setAttribute(
+        'aria-selected',
+        String(tab.dataset.sceneTab===sceneMode)
+      );
+    });
+
+    let focus=null;
+
+    qa('[data-scene-card]').forEach(card=>{
+      card.hidden=card.dataset.sceneMode!==sceneMode;
+
+      if(
+        !card.hidden &&
+        card.dataset.locked!=='true' &&
+        card.classList.contains('is-selected')
+      ){
+        focus=card;
+      }
+    });
+
+    updateSceneFocus(focus);
+  }
+   
   function unlockNeed(rule){return typeof rule==='number'?`${rule}m`:typeof rule==='string'?rule.replace('runs:','×'):rule&&rule.complete?`✓ ${tr(rule.complete)}`:''}
   function skinNeed(item){return item.distance?`${item.distance}m`:item.collects?`${item.collects} ${tr('totalCollects')}`:item.combo?`×${item.combo}`:''}
   function previewTheme(){const css=getComputedStyle(root),value=(name,fallback)=>css.getPropertyValue(name).trim()||fallback;return{bg:value('--background','#181919'),card:value('--card','#2d2e2d'),fg:value('--foreground','#f8f2e9'),one:value('--viz-series-1','#83c3ff'),two:value('--viz-series-2','#d97753'),three:value('--viz-series-3','#74d58b')}}
