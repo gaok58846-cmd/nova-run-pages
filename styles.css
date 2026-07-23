@@ -1033,7 +1033,7 @@ html,body{height:100%;min-height:100%;overflow:hidden;overscroll-behavior:none}
 @media(max-width:700px){
   #nova-run-game[data-settings-page="map"] .nr-settings-scroll{padding-bottom:calc(30px + var(--safe-bottom))}
   #nova-run-game[data-settings-page="map"] [data-settings-section="map"]{padding-bottom:calc(18px + var(--safe-bottom))}
-  #nova-run-game .nr-scene-focus>img,#nova-run-game .nr-scene-image img{object-fit:contain;background:var(--nr-panel-elevated)}
+  #nova-run-game .nr-scene-focus>img,#nova-run-game .nr-scene-image img{object-fit:cover;object-position:center center;background:var(--nr-panel-elevated)}
   #nova-run-game .nr-scene-image:after{height:30%}
   #nova-run-game .nr-scene-grid{padding-bottom:calc(12px + var(--safe-bottom))}
   #nova-run-game .nr-app-install:not([hidden]){grid-template-columns:1fr}
@@ -1052,12 +1052,14 @@ html,body{height:100%;min-height:100%;overflow:hidden;overscroll-behavior:none}
   #nova-run-game[data-mode="play"] .nr-quick-controls,#nova-run-game[data-mode="pause"] .nr-quick-controls{top:calc(var(--safe-top) + var(--visual-top-offset,0px) + 6px)!important;right:calc(var(--safe-right) + 8px)!important}
   #nova-run-game[data-settings-page="map"] .nr-settings-scroll{overflow:hidden;padding-bottom:10px}
   #nova-run-game[data-settings-page="map"] [data-settings-section="map"]{grid-template-rows:minmax(0,1fr) auto;height:100%;min-height:0;overflow:hidden;padding-bottom:0}
-  #nova-run-game[data-settings-page="map"] .nr-scene-picker{display:grid;grid-template-columns:minmax(250px,.9fr) minmax(290px,1.1fr);grid-template-rows:auto auto minmax(0,1fr);gap:6px 10px;height:100%;min-height:0;overflow:hidden}
+  #nova-run-game[data-settings-page="map"] .nr-scene-picker{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto auto minmax(0,1fr);gap:6px 10px;height:100%;min-height:0;overflow:hidden}
   #nova-run-game[data-settings-page="map"] .nr-scene-picker-head,#nova-run-game[data-settings-page="map"] .nr-scene-tabs{grid-column:1/-1}
-  #nova-run-game[data-settings-page="map"] .nr-scene-grid{grid-column:1;grid-row:3;align-content:start;height:100%;min-height:0;overflow-x:hidden;overflow-y:auto;padding:0 4px calc(16px + var(--safe-bottom)) 0;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
-  #nova-run-game[data-settings-page="map"] .nr-scene-image img{object-fit:contain;background:var(--nr-panel-elevated)}
-  #nova-run-game[data-settings-page="map"] .nr-scene-focus{grid-column:2;grid-row:3;position:relative;top:auto;align-self:stretch;grid-template-columns:1fr;grid-template-rows:minmax(72px,1fr) auto;height:100%;min-height:0;margin:0;overflow:hidden}
-  #nova-run-game[data-settings-page="map"] .nr-scene-focus>img{width:100%;height:100%;min-height:0;object-fit:contain;background:var(--nr-panel-elevated)}
+  #nova-run-game[data-settings-page="map"] .nr-scene-grid{grid-column:1;grid-row:4;align-content:start;height:100%;min-height:0;overflow-x:hidden;overflow-y:auto;padding:0 4px calc(16px + var(--safe-bottom)) 0;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+  #nova-run-game[data-settings-page="map"] .nr-scene-card{min-height:118px;flex-shrink:0}
+  #nova-run-game[data-settings-page="map"] .nr-scene-card .nr-scene-image,#nova-run-game[data-settings-page="map"] .nr-scene-challenge .nr-scene-image{height:100px;min-height:100px;aspect-ratio:16/9}
+  #nova-run-game[data-settings-page="map"] .nr-scene-image img{object-fit:cover;object-position:center center;background:var(--nr-panel-elevated)}
+  #nova-run-game[data-settings-page="map"] .nr-scene-focus{grid-column:1;grid-row:3;position:relative;top:auto;align-self:stretch;grid-template-columns:1fr;grid-template-rows:minmax(96px,1fr) auto;height:100%;min-height:0;margin:0;overflow:hidden}
+  #nova-run-game[data-settings-page="map"] .nr-scene-focus>img{width:100%;height:100%;min-height:0;object-fit:cover;object-position:center center;background:var(--nr-panel-elevated)}
   #nova-run-game[data-settings-page="map"] .nr-scene-focus>div{align-content:center;min-height:68px;padding:8px 10px}
   #nova-run-game[data-settings-page="map"] .nr-scene-focus strong{min-height:1.2em}
   #nova-run-game[data-settings-page="map"] .nr-difficulty-setting{margin:0}
