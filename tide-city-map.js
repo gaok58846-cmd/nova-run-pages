@@ -53,7 +53,7 @@ function render(ctx,state,width,height,theme,api){
     : 16;
 
   const challengeHudY=portraitHud
-    ? 76
+    ? 104
     : 16;
 
   const challengeHudFont=portraitHud&&width<370
