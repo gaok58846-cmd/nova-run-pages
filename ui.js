@@ -548,7 +548,7 @@ difficultyField.hidden=sceneMode==='challenge';
     updateSceneFocus(focus);
   }
    
-  function unlockNeed(rule){return typeof rule==='number'?`${rule}m`:typeof rule==='string'?rule.replace('runs:','×'):rule&&rule.complete?`✓ ${tr(rule.complete)}`:''}
+  function unlockNeed(rule){return typeof rule==='number'?`${rule}m`:typeof rule==='string'?rule.replace('runs:','×'):rule&&rule.complete?tr(rule.complete):''}
   function skinNeed(item){return item.distance?`${item.distance}m`:item.collects?`${item.collects} ${tr('totalCollects')}`:item.combo?`×${item.combo}`:''}
   function previewTheme(){const css=getComputedStyle(root),value=(name,fallback)=>css.getPropertyValue(name).trim()||fallback;return{bg:value('--background','#181919'),card:value('--card','#2d2e2d'),fg:value('--foreground','#f8f2e9'),one:value('--viz-series-1','#83c3ff'),two:value('--viz-series-2','#d97753'),three:value('--viz-series-3','#74d58b')}}
   function renderSkinCanvas(canvas,skin,width,height,large=false){const dpr=Math.min(2,devicePixelRatio||1);canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);canvas.style.aspectRatio=`${width}/${height}`;const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);PlayerRenderer.drawPreview(ctx,{skin,theme:previewTheme(),width,height,reducedMotion:storage.settings().reducedMotion,dash:false})}
@@ -632,11 +632,12 @@ difficultyField.hidden=sceneMode==='challenge';
         id===selectedScene
       );
 
-      lock.hidden=open;
+            lock.hidden=open;
+      lock.dataset.label=tr('locked');
       lock.textContent=open?'':need;
 
       if(complete){
-        complete.hidden=!completed.has(id);
+        complete.hidden=!open||!completed.has(id);
       }
     });
 
