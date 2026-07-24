@@ -605,12 +605,12 @@ difficultyField.hidden=sceneMode==='challenge';
     });
 
     qa('[data-scene-card]').forEach(card=>{
-      const id=card.dataset.sceneValue;
+            const id=card.dataset.sceneValue;
       const open=unlocked.includes(id);
       const need=unlockNeed(content.sceneUnlocks[id]);
       const lock=card.querySelector('[data-scene-lock]');
+      const copy=card.querySelector('.nr-scene-copy');
       const complete=card.querySelector('[data-scene-complete]');
-
       card.disabled=false;
       card.dataset.locked=String(!open);
       card.dataset.unlockText=need;
@@ -632,9 +632,15 @@ difficultyField.hidden=sceneMode==='challenge';
         id===selectedScene
       );
 
-            lock.hidden=open;
-      lock.dataset.label=tr('locked');
-      lock.textContent=open?'':need;
+                  if(lock){
+        if(copy&&lock.parentElement!==copy){
+          copy.appendChild(lock);
+        }
+
+        lock.hidden=open;
+        lock.dataset.label=tr('locked');
+        lock.textContent=open?'':need;
+      }
 
       if(complete){
         complete.hidden=!open||!completed.has(id);
