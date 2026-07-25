@@ -2253,3 +2253,101 @@ html,body{height:100%;min-height:100%;overflow:hidden;overscroll-behavior:none}
     font-size: 7px;
   }
 }
+/* =========================================================
+   NOVA RUN — LANDSCAPE PROFILE LAYOUT V25
+   横屏成长记录：减少空白并充分利用宽度
+   ========================================================= */
+
+@media (pointer: coarse) and
+       (orientation: landscape) and
+       (max-height: 600px) {
+
+  /* 横屏时让成长记录居中并利用屏幕宽度 */
+  #nova-run-game .nr-profile-panel {
+    left: 50% !important;
+    right: auto !important;
+
+    top: calc(var(--safe-top) + 8px) !important;
+    bottom: calc(var(--safe-bottom) + 8px) !important;
+
+    width: min(
+      760px,
+      calc(
+        100% -
+        var(--safe-left) -
+        var(--safe-right) -
+        16px
+      )
+    ) !important;
+
+    max-height: none !important;
+    transform: translateX(-50%) !important;
+
+    padding: 10px 12px 12px !important;
+    border-radius: 6px 18px 6px 18px !important;
+
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  /* 压缩原来过高的标题区域 */
+  #nova-run-game
+  .nr-profile-panel
+  .nr-panel-head {
+    min-height: 42px !important;
+    margin: 0 !important;
+    padding: 0 0 7px !important;
+  }
+
+  /* 横屏关闭按钮稍微缩小 */
+  #nova-run-game
+  .nr-profile-panel
+  .nr-close-button {
+    --nr-icon-size: 42px;
+  }
+
+  /* 四项统计改成同一行，减少纵向浪费 */
+  #nova-run-game
+  .nr-profile-panel
+  .nr-stat-grid {
+    grid-template-columns:
+      repeat(4, minmax(0, 1fr)) !important;
+
+    gap: 7px !important;
+    margin: 8px 0 7px !important;
+  }
+
+  #nova-run-game
+  .nr-profile-panel
+  .nr-stat {
+    min-width: 0;
+    padding: 7px 8px !important;
+  }
+
+  #nova-run-game
+  .nr-profile-panel
+  .nr-stat span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  #nova-run-game
+  .nr-profile-panel
+  .nr-stat strong {
+    font-size: 17px !important;
+    white-space: nowrap;
+  }
+
+  /* 压缩每日任务和成就之间的无效间距 */
+  #nova-run-game
+  .nr-profile-panel h3 {
+    margin: 8px 0 5px !important;
+  }
+
+  #nova-run-game
+  .nr-profile-panel
+  .nr-daily-item {
+    margin: 4px 0 !important;
+  }
+}
