@@ -9,8 +9,68 @@ function softVignette(ctx,width,height,color,alpha,focusX,focusY){
   const radius=Math.hypot(width,height)*.68,gradient=ctx.createRadialGradient(focusX,focusY,Math.min(width,height)*.2,focusX,focusY,radius);gradient.addColorStop(0,rgba(color,0));gradient.addColorStop(.66,rgba(color,.01));gradient.addColorStop(1,rgba(color,alpha));ctx.fillStyle=gradient;ctx.fillRect(0,0,width,height);
 }
 function trailRibbon(ctx,p,time,color,index,strength){
-  const centerY=p.y+p.h*(.34+index*.12),length=62+index*27+strength*70,wave=Math.sin(time*(7-index*.8)+index*1.7)*4,thickness=8-index*1.4;
-  ctx.fillStyle=rgba(color,.14+strength*.12-index*.018);ctx.beginPath();ctx.moveTo(p.x+8,centerY-thickness);ctx.bezierCurveTo(p.x-length*.3,centerY-thickness-wave,p.x-length*.72,centerY+wave,p.x-length,centerY);ctx.bezierCurveTo(p.x-length*.72,centerY-wave,p.x-length*.3,centerY+thickness+wave,p.x+8,centerY+thickness);ctx.closePath();ctx.fill();
+  const sliding=p.slide>0&&p.ground;
+  const effectH=sliding?36:p.h;
+  const effectY=sliding?p.y+p.h-effectH:p.y;
+
+  const centerY=effectY+effectH*(
+    sliding
+      ?.58+index*.07
+      :.34+index*.12
+  );
+
+  const length=(
+    62+
+    index*27+
+    strength*70
+  )*(sliding?1.08:1);
+
+  const wave=
+    Math.sin(
+      time*(7-index*.8)+index*1.7
+    )*(sliding?1.5:4);
+
+  const thickness=Math.max(
+    2.4,
+    (sliding?5.2:8)-
+    index*(sliding?.7:1.4)
+  );
+
+  const startX=p.x+(sliding?18:8);
+
+  ctx.fillStyle=rgba(
+    color,
+    (sliding?.18:.14)+
+    strength*.12-
+    index*.018
+  );
+
+  ctx.beginPath();
+  ctx.moveTo(
+    startX,
+    centerY-thickness
+  );
+
+  ctx.bezierCurveTo(
+    startX-length*.3,
+    centerY-thickness-wave,
+    startX-length*.72,
+    centerY+wave,
+    startX-length,
+    centerY
+  );
+
+  ctx.bezierCurveTo(
+    startX-length*.72,
+    centerY-wave,
+    startX-length*.3,
+    centerY+thickness+wave,
+    startX,
+    centerY+thickness
+  );
+
+  ctx.closePath();
+  ctx.fill();
 }
 function drawHexShield(ctx,p,C,time,reduced){
   const cx=p.x+p.w/2,cy=p.y+p.h/2,r=44+(reduced?0:Math.sin(time*4)*1.5);ctx.save();ctx.fillStyle=rgba(C.one,.08);ctx.strokeStyle=rgba(C.one,.45);ctx.lineWidth=1.6;polygon(ctx,Array.from({length:6},(_,i)=>[cx+Math.cos(Math.PI/3*i-Math.PI/6)*r,cy+Math.sin(Math.PI/3*i-Math.PI/6)*r*1.12]));ctx.fill();ctx.stroke();ctx.globalAlpha=.18;for(let i=0;i<3;i++){const a=time*.35+i*Math.PI*2/3,x=cx+Math.cos(a)*r*.72,y=cy+Math.sin(a)*r*.8;diamond(ctx,x,y,3);ctx.fillStyle=C.fg;ctx.fill()}ctx.restore();
