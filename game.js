@@ -363,9 +363,159 @@
   }
   function background(){backgroundRenderer.setScene(scene,activeSeed);backgroundRenderer.render({distance:game.distance,time:game.time,floor:floor(),palette:C,reducedMotion,performanceMode,visualQuality});const accents={guangzhou:[C.one,C.two],shanghai:[C.two,C.one],shenzhen:[C.three,C.one],snow:[C.fg,C.three],volcano:[C.two,C.three],jiuzhaigou:[C.three,C.one]};track(...accents[scene])}
 
-  function drawSpeedLines(){
-    if(reducedMotion||game.mode!=='play')return;const cfg=DIFF[game.diff],speedRatio=Math.max(0,Math.min(1,(game.speed-cfg.startSpeed)/Math.max(1,cfg.maxSpeed-cfg.startSpeed))),strength=Math.max(speedRatio*.12,game.over>0?.18:0,p.dash>0?.14:0);if(strength<.035)return;
-    ctx.save();ctx.strokeStyle=rgba(game.over>0?C.three:C.one,strength);ctx.lineWidth=1.5;for(let i=0;i<10;i++){const y=52+((i*73+game.distance*3.1)%(Math.max(90,floor()-90))),length=28+(i%4)*21,x=((i*137-game.time*(210+game.speed*.25))%(W+180)+W+180)%(W+180)-90;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+length,y);ctx.stroke()}ctx.restore()
+    function drawSpeedLines(){
+    if(reducedMotion||game.mode!=='play'){
+      return;
+    }
+
+    const cfg=DIFF[game.diff];
+    const sliding=p.slide>0&&p.ground;
+    const dashing=p.dash>0;
+    const over=game.over>0;
+    const slow=p.slow>0?.72:1;
+
+    const finalVisualSpeed=
+      game.speed*
+      scenePace()*
+      slow*
+      game.flow;
+
+    const minSpeed=
+      cfg.startSpeed*
+      scenePace();
+
+    const maxSpeed=
+      cfg.maxSpeed*
+      scenePace()*
+      1.25;
+
+    const speedRatio=Math.max(
+      0,
+      Math.min(
+        1,
+        (finalVisualSpeed-minSpeed)/
+        Math.max(1,maxSpeed-minSpeed)
+      )
+    );
+
+    const strength=Math.max(
+      speedRatio*.12,
+      over?.2:0,
+      dashing?.155:0
+    );
+
+    if(strength<.035){
+      return;
+    }
+
+    const lineCount=
+      performanceMode==='performance'
+        ?7
+        :visualQuality<.7
+          ?8
+          :12;
+
+    const cyan='#71D7E5';
+    const core='#F5FBFF';
+    const coral='#E78361';
+
+    const groundBand=Math.min(
+      150,
+      Math.max(85,H*.27)
+    );
+
+    ctx.save();
+    ctx.lineCap='round';
+
+    for(let i=0;i<lineCount;i++){
+      const colorIndex=i%10;
+
+      const color=
+        colorIndex<7
+          ?cyan
+          :colorIndex<9
+            ?core
+            :coral;
+
+      const nearGround=
+        sliding&&
+        i<Math.ceil(lineCount*.72);
+
+      const y=
+        nearGround
+          ?floor()-12-
+            (
+              (
+                i*31+
+                game.distance*3.3
+              )%groundBand
+            )
+          :48+
+            (
+              (
+                i*73+
+                game.distance*3.1
+              )%
+              Math.max(90,floor()-90)
+            );
+
+      const baseLength=
+        28+
+        (i%4)*20;
+
+      const stateBonus=
+        over
+          ?68
+          :dashing
+            ?38
+            :0;
+
+      const length=
+        (
+          baseLength+
+          stateBonus+
+          speedRatio*42
+        )*
+        (sliding?1.1:1);
+
+      const x=
+        (
+          (
+            i*137-
+            game.time*
+            (
+              210+
+              finalVisualSpeed*.25
+            )
+          )%
+          (W+190)+
+          W+190
+        )%
+        (W+190)-95;
+
+      ctx.strokeStyle=rgba(
+        color,
+        color===coral
+          ?strength*.68
+          :color===core
+            ?strength*.84
+            :strength
+      );
+
+      ctx.lineWidth=
+        color===coral
+          ?1
+          :color===core
+            ?1.25
+            :1.55;
+
+      ctx.beginPath();
+      ctx.moveTo(x,y);
+      ctx.lineTo(x+length,y);
+      ctx.stroke();
+    }
+
+    ctx.restore();
   }
 
   function drawEffects(){
