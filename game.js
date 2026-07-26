@@ -522,7 +522,50 @@
     ctx.save();for(const q of game.particles){ctx.globalAlpha=Math.min(.82,q.t*2);ctx.fillStyle=q.color;ctx.beginPath();ctx.arc(q.x,q.y,Math.max(1,q.r),0,7);ctx.fill()}ctx.restore();
   }
 
-  function drawStateAtmosphere(){if(game.mode==='play')StateEffects.draw(ctx,{player:p,game,width:W,height:H,palette:C,reducedMotion,performanceMode,visualQuality})}
+    function stateEffectFrame(){
+    return{
+      player:p,
+      game,
+      width:W,
+      height:H,
+      palette:C,
+      skin:skinProfile(),
+      reducedMotion,
+      performanceMode,
+      visualQuality
+    };
+  }
+
+  function drawStateBehind(){
+    if(game.mode!=='play'){
+      return;
+    }
+
+    if(typeof StateEffects.drawBehind==='function'){
+      StateEffects.drawBehind(
+        ctx,
+        stateEffectFrame()
+      );
+    }
+  }
+
+  function drawStateFront(){
+    if(game.mode!=='play'){
+      return;
+    }
+
+    if(typeof StateEffects.drawFront==='function'){
+      StateEffects.drawFront(
+        ctx,
+        stateEffectFrame()
+      );
+    }else if(typeof StateEffects.draw==='function'){
+      StateEffects.draw(
+        ctx,
+        stateEffectFrame()
+      );
+    }
+  }
 
   function drawWarning(o){if(!o.warning||o.x<80||o.x>W+190)return;const pulse=.66+.22*Math.sin(game.time*7),wx=Math.min(W-28,o.x+o.w/2);ctx.save();ctx.globalAlpha=pulse;ctx.fillStyle=C.two;ctx.strokeStyle=C.fg;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(wx,floor()-112);ctx.lineTo(wx-13,floor()-88);ctx.lineTo(wx+13,floor()-88);ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle=C.bg;ctx.font='700 15px system-ui';ctx.textAlign='center';ctx.fillText('!',wx,floor()-92);ctx.strokeStyle=rgba(C.two,.7);ctx.beginPath();ctx.ellipse(wx,floor()-5,Math.max(24,o.w*.55),7,0,0,7);ctx.stroke();ctx.restore()}
   function drawActionCue(o){
@@ -609,7 +652,95 @@
     if(game.mode==='pause'){}
     ctx.restore();
   }
-  function render(){ctx.save();C.skin=skinAccent();if(isMountain()){const map=challengeMap();mountainState=mountainState||map.createState(W,H);mountainState.reducedMotion=reducedMotion;map.render(ctx,mountainState,W,H,C);ctx.save();ctx.translate(-mountainState.cameraX,0);PlayerRenderer.drawChallenge(ctx,mountainState,C,skinProfile());ctx.restore();overlay();if(flash&&!reducedMotion){ctx.globalAlpha=flash;ctx.fillStyle=C.fg;ctx.fillRect(0,0,W,H)}ctx.restore();return}if(shake&&!reducedMotion&&shakeStrength>0)ctx.translate((Math.random()-.5)*shake*shakeStrength,(Math.random()-.5)*shake*shakeStrength);background();drawSpeedLines();drawThings();drawEffects();player();drawStateAtmosphere();hud();overlay();if(flash&&!reducedMotion){ctx.globalAlpha=flash;ctx.fillStyle=C.fg;ctx.fillRect(0,0,W,H)}ctx.restore()}
+    function render(){
+    ctx.save();
+    C.skin=skinAccent();
+
+    if(isMountain()){
+      const map=challengeMap();
+
+      mountainState=
+        mountainState||
+        map.createState(W,H);
+
+      mountainState.reducedMotion=
+        reducedMotion;
+
+      map.render(
+        ctx,
+        mountainState,
+        W,
+        H,
+        C
+      );
+
+      ctx.save();
+      ctx.translate(
+        -mountainState.cameraX,
+        0
+      );
+
+      PlayerRenderer.drawChallenge(
+        ctx,
+        mountainState,
+        C,
+        skinProfile()
+      );
+
+      ctx.restore();
+
+      overlay();
+
+      if(flash&&!reducedMotion){
+        ctx.globalAlpha=flash;
+        ctx.fillStyle=C.fg;
+        ctx.fillRect(0,0,W,H);
+      }
+
+      ctx.restore();
+      return;
+    }
+
+    if(
+      shake&&
+      !reducedMotion&&
+      shakeStrength>0
+    ){
+      ctx.translate(
+        (Math.random()-.5)*
+        shake*
+        shakeStrength,
+
+        (Math.random()-.5)*
+        shake*
+        shakeStrength
+      );
+    }
+
+    background();
+    drawSpeedLines();
+    drawThings();
+
+    /* 尾流、地面切线和残影在角色后方。 */
+    drawStateBehind();
+
+    drawEffects();
+    player();
+
+    /* 护盾、核心、受伤和完美闪避在角色前方。 */
+    drawStateFront();
+
+    hud();
+    overlay();
+
+    if(flash&&!reducedMotion){
+      ctx.globalAlpha=flash;
+      ctx.fillStyle=C.fg;
+      ctx.fillRect(0,0,W,H);
+    }
+
+    ctx.restore();
+  }
   function stopLoop(){if(frameId){caf(frameId);frameId=0}scheduled=false;last=0}
   function schedule(){if(!scheduled&&visible&&!document.hidden&&game.mode==='play'){scheduled=true;frameId=raf(loop)}}
   function loop(t){scheduled=false;frameId=0;if(game.mode!=='play'||document.hidden||!visible)return;const rawDt=last?(t-last)/1000:0,dt=Math.min(.033,rawDt);last=t;if(rawDt>.024)slowFrameScore=Math.min(180,slowFrameScore+1);else slowFrameScore=Math.max(0,slowFrameScore-1);const qualityCeiling=performanceMode==='performance'?.62:1;if(slowFrameScore>90)visualQuality=Math.min(qualityCeiling,.52);else if(slowFrameScore<24)visualQuality=qualityCeiling;try{update(dt);render()}catch(error){console.error('NOVA RUN frame error',error);visible=false;const panel=root.querySelector('[data-error]');if(panel){panel.hidden=false;panel.textContent='运行出现问题，请刷新页面后重试。';panel.dataset.detail=String(error&&error.message||error)}return}schedule()}
