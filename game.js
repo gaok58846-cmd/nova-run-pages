@@ -255,32 +255,81 @@
       if(profile&&overlap(pb,obstacleBox(o)))hit(o);
     }
     write=0;for(const o of game.things)if(!o.dead&&o.x+o.w>-170)game.things[write++]=o;game.things.length=write;
-    if(
-  !reducedMotion&&
-  (p.dash>0||game.over>0)&&
-  game.particles.length<180
-){
-  const sliding=p.slide>0&&p.ground;
-  const effectH=sliding?36:p.h;
-  const effectY=sliding?p.y+p.h-effectH:p.y;
+        if(
+      !reducedMotion&&
+      (p.dash>0||game.over>0)&&
+      game.particles.length<140
+    ){
+      const sliding=p.slide>0&&p.ground;
+      const effectH=sliding?36:p.h;
+      const effectY=sliding?p.y+p.h-effectH:p.y;
 
-  for(let i=0;i<(visualQuality<1?1:2);i++){
-    game.particles.push({
-      x:p.x+(sliding?16:5),
-      y:
-        effectY+
-        (sliding?12:18)+
-        Math.random()*(sliding?18:42),
+      const skinFx=skinProfile().palette||{};
 
-      vx:-220-Math.random()*230,
-      vy:(Math.random()-.5)*(sliding?45:90),
+      const trailColor=
+        skinFx.trail||
+        '#71D7E5';
 
-      r:2+Math.random()*5,
-      t:.18+Math.random()*.18,
-      color:C.three
-    });
-  }
-}
+      const particleColor=
+        skinFx.particle||
+        trailColor;
+
+      const coreColor='#F5FBFF';
+      const coralColor='#E78361';
+
+      const particleCount=
+        performanceMode==='performance'
+          ?1
+          :performanceMode==='quality'&&visualQuality>=.7
+            ?3
+            :2;
+
+      for(let i=0;i<particleCount;i++){
+        const roll=Math.random();
+
+        const color=
+          sliding&&roll>.84
+            ?coralColor
+            :roll<.56
+              ?trailColor
+              :roll<.72
+                ?particleColor
+                :roll<.91
+                  ?coreColor
+                  :coralColor;
+
+        game.particles.push({
+          x:p.x+(sliding?16:6),
+
+          y:
+            effectY+
+            (sliding?18:17)+
+            Math.random()*(sliding?15:43),
+
+          vx:
+            sliding
+              ?-270-Math.random()*260
+              :-225-Math.random()*240,
+
+          vy:
+            sliding
+              ?-8-Math.random()*30
+              :(Math.random()-.5)*88,
+
+          r:
+            color===coralColor
+              ?1.2+Math.random()*2
+              :1.8+Math.random()*4.2,
+
+          t:
+            sliding
+              ?.14+Math.random()*.14
+              :.17+Math.random()*.18,
+
+          color
+        });
+      }
+    }
   }
 
   function fillPath(points,fill,stroke){ctx.beginPath();ctx.moveTo(points[0][0],points[0][1]);for(let i=1;i<points.length;i++)ctx.lineTo(points[i][0],points[i][1]);ctx.closePath();if(fill){ctx.fillStyle=fill;ctx.fill()}if(stroke){ctx.strokeStyle=stroke;ctx.stroke()}}
