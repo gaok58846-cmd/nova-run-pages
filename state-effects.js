@@ -96,7 +96,49 @@ function draw(ctx,frame){
   if(hurt)softVignette(ctx,width,height,C.two,Math.min(.16,.06+p.hurt*.1),p.x+p.w*.5,p.y+p.h*.5);
   else if(slowed)softVignette(ctx,width,height,C.four,.055,p.x+p.w*.5,p.y+p.h*.5);
   else if(over)softVignette(ctx,width,height,C.three,.045,p.x+p.w*.5,p.y+p.h*.5);
-  if(over||dashing){ctx.globalCompositeOperation='lighter';const count=frame.reducedMotion?1:lowQuality?2:4,strength=over?1:.55;for(let i=0;i<count;i++)trailRibbon(ctx,p,time,over?C.three:C.one,i,strength);ctx.globalCompositeOperation='source-over'}
+  if(over||dashing){
+  ctx.globalCompositeOperation='lighter';
+
+  const count=
+    frame.reducedMotion
+      ?1
+      :lowQuality
+        ?2
+        :4;
+
+  const strength=over?1:.55;
+
+  /*
+   * 保持原来的层数、透明度、长度和性能逻辑，
+   * 只让不同层使用不同颜色。
+   */
+  const colors=over
+    ?[
+        C.three, // NOVA 主色
+        C.one,   // 冷色辅助
+        C.two,   // 暖色高光
+        C.four   // 少量紫粉点缀
+      ]
+    :[
+        C.one,   // 普通冲刺主色
+        C.three, // 辅助色
+        C.two,   // 暖色高光
+        C.four   // 少量紫粉点缀
+      ];
+
+  for(let i=0;i<count;i++){
+    trailRibbon(
+      ctx,
+      p,
+      time,
+      colors[i%colors.length],
+      i,
+      strength
+    );
+  }
+
+  ctx.globalCompositeOperation='source-over';
+}
   if(ready&&!over)drawReadyCore(ctx,p,C,time,frame.reducedMotion,lowQuality);
   if(shield)drawHexShield(ctx,p,C,time,frame.reducedMotion);
   if(magnet)drawMagnetParticles(ctx,p,C,time,frame.reducedMotion,lowQuality);
