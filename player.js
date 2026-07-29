@@ -151,6 +151,110 @@ ctx.shadowColor =
   activeBoosting
     ? S.trail
     : S.outline;ctx.lineCap='round';ctx.lineJoin='round';
+  /*
+ * 二段跳离子升力。
+ * 根据现有竖直速度自然淡出，不新增计时器或状态变量。
+ */
+if(secondJump&&!fatal){
+  const jumpLift=
+    Number.isFinite(p.vy)
+      ?Math.max(
+          0,
+          Math.min(
+            1,
+            (-p.vy-80)/530
+          )
+        )
+      :0;
+
+  if(jumpLift>0){
+    const boostFade=
+      activeBoosting
+        ?.68
+        :1;
+
+    ctx.save();
+
+    ctx.globalCompositeOperation='lighter';
+    ctx.lineCap='round';
+    ctx.lineJoin='round';
+
+    ctx.shadowBlur=
+      reducedMotion
+        ?0
+        :4;
+
+    /*
+     * 左侧主升力轨迹：更长、更明显。
+     */
+    ctx.strokeStyle=S.trail;
+    ctx.shadowColor=S.trail;
+
+    ctx.globalAlpha=
+      (reducedMotion?.28:.58)*
+      jumpLift*
+      boostFade;
+
+    ctx.lineWidth=2.4;
+
+    ctx.beginPath();
+    ctx.moveTo(13,50);
+    ctx.quadraticCurveTo(
+      8,
+      56,
+      3,
+      63
+    );
+    ctx.stroke();
+
+    /*
+     * 右侧稳定轨迹：更短、更淡。
+     * 不做完全对称，避免像翅膀。
+     */
+    ctx.strokeStyle=S.particle;
+    ctx.shadowColor=S.particle;
+
+    ctx.globalAlpha=
+      (reducedMotion?.2:.4)*
+      jumpLift*
+      boostFade;
+
+    ctx.lineWidth=1.6;
+
+    ctx.beginPath();
+    ctx.moveTo(30,51);
+    ctx.quadraticCurveTo(
+      35,
+      55,
+      40,
+      60
+    );
+    ctx.stroke();
+
+    /*
+     * 极小核心闪光。
+     * 金色只保留为细节，不再形成头顶半圆。
+     */
+    ctx.shadowBlur=0;
+    ctx.fillStyle=S.core;
+
+    ctx.globalAlpha=
+      (reducedMotion?.1:.2)*
+      jumpLift;
+
+    ctx.beginPath();
+    ctx.arc(
+      22,
+      54,
+      1.2,
+      0,
+      Math.PI*2
+    );
+    ctx.fill();
+
+    ctx.restore();
+  }
+}
   if(!sliding){const scarf=12+motion.intensity*14+(activeBoosting&&game.over>0?18:0);ctx.fillStyle=S.trail;ctx.globalAlpha=reducedMotion?.55:.72;ctx.beginPath();ctx.moveTo(12,23);ctx.lineTo(-scarf,18-runPhase*.12);ctx.lineTo(8,31);ctx.closePath();ctx.fill();if(S.pattern==='prism'){ctx.fillStyle=S.particle;ctx.globalAlpha=.4;ctx.beginPath();ctx.moveTo(8,25);ctx.lineTo(-scarf*.72,29+runPhase*.08);ctx.lineTo(7,33);ctx.closePath();ctx.fill()}ctx.globalAlpha=1}
   if(sliding){const reach=39+motion.intensity*8;ctx.strokeStyle=activeAccent;ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(8,29);ctx.lineTo(29,29);ctx.lineTo(reach,34);ctx.moveTo(14,24);ctx.lineTo(4-motion.intensity*4,32);ctx.stroke();rounded(ctx,10,12,27,17,8,S.body,activeAccent);rounded(ctx,18,3,19,16,7,S.shade,activeAccent);rounded(ctx,23,7,13,5,2,S.visor);ctx.fillStyle=activeAccent;ctx.fillRect(8,27,28,3)}else{
     const legA=p.ground?runPhase*motion.stride:secondJump?-6-motion.intensity*3:5+motion.intensity*5,legB=p.ground?-runPhase*motion.stride:secondJump?6+motion.intensity*3:-4-motion.intensity*4,armA=p.ground?-armPhase*motion.armSwing:secondJump?-5:-9-motion.intensity*4,armB=p.ground?armPhase*motion.armSwing:secondJump?5:-8-motion.intensity*3,liftA=p.ground?Math.max(0,-armPhase)*motion.armLift:0,liftB=p.ground?Math.max(0,armPhase)*motion.armLift:0,dropA=p.ground?Math.max(0,armPhase)*3:0,dropB=p.ground?Math.max(0,-armPhase)*3:0;
@@ -159,7 +263,7 @@ ctx.shadowColor =
     ?S.shade
     :game.over>0
       ?C.three
-      :S.core;if(S.pattern==='pulse'){ctx.beginPath();ctx.arc(22,30,6,0,7);ctx.fill();ctx.strokeStyle=S.particle;ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(22,30,9,0,7);ctx.stroke()}else if(S.pattern==='sunset'){ctx.beginPath();for(let i=0;i<6;i++){const a=-Math.PI/2+i*Math.PI/3,x=22+Math.cos(a)*7,y=30+Math.sin(a)*7;i?ctx.lineTo(x,y):ctx.moveTo(x,y)}ctx.closePath();ctx.fill()}else if(S.pattern==='prism'){ctx.beginPath();ctx.moveTo(22,23);ctx.lineTo(29,35);ctx.lineTo(15,35);ctx.closePath();ctx.fill()}else{ctx.beginPath();ctx.moveTo(22,24);ctx.lineTo(28,30);ctx.lineTo(22,36);ctx.lineTo(16,30);ctx.closePath();ctx.fill()}ctx.strokeStyle=S.body;ctx.lineWidth=1;ctx.stroke();ctx.fillStyle=S.shade;ctx.strokeStyle=activeAccent;ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(22,10,10,0,7);ctx.fill();ctx.stroke();rounded(ctx,16,7,16,6,3,S.visor);ctx.fillStyle=S.body;ctx.globalAlpha=.8;ctx.fillRect(26,8,4,2);ctx.globalAlpha=1;if(secondJump){ctx.strokeStyle=S.core;ctx.lineWidth=2;ctx.globalAlpha=.75;ctx.beginPath();ctx.arc(22,32,25,-2.3,-.2);ctx.stroke();ctx.globalAlpha=1}
+      :S.core;if(S.pattern==='pulse'){ctx.beginPath();ctx.arc(22,30,6,0,7);ctx.fill();ctx.strokeStyle=S.particle;ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(22,30,9,0,7);ctx.stroke()}else if(S.pattern==='sunset'){ctx.beginPath();for(let i=0;i<6;i++){const a=-Math.PI/2+i*Math.PI/3,x=22+Math.cos(a)*7,y=30+Math.sin(a)*7;i?ctx.lineTo(x,y):ctx.moveTo(x,y)}ctx.closePath();ctx.fill()}else if(S.pattern==='prism'){ctx.beginPath();ctx.moveTo(22,23);ctx.lineTo(29,35);ctx.lineTo(15,35);ctx.closePath();ctx.fill()}else{ctx.beginPath();ctx.moveTo(22,24);ctx.lineTo(28,30);ctx.lineTo(22,36);ctx.lineTo(16,30);ctx.closePath();ctx.fill()}ctx.strokeStyle=S.body;ctx.lineWidth=1;ctx.stroke();ctx.fillStyle=S.shade;ctx.strokeStyle=activeAccent;ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(22,10,10,0,7);ctx.fill();ctx.stroke();rounded(ctx,16,7,16,6,3,S.visor);ctx.fillStyle=S.body;ctx.globalAlpha=.8;ctx.fillRect(26,8,4,2);ctx.globalAlpha=1;
   }
   if(fatal){
   drawCoreShutdown(
