@@ -2353,17 +2353,60 @@ html,body{height:100%;min-height:100%;overflow:hidden;overscroll-behavior:none}
 }
 /* =========================================================
    NOVA RUN V30 — HIDE GAME HUD BEHIND MODALS
-   Prevent mobile landscape control shadows from leaking
-   through the settings panel.
+   /* =========================================================
+   NOVA RUN V31 — SETTINGS LAYER HARD ISOLATION
    ========================================================= */
 
-#nova-run-game.settings-open .nr-quick-controls,
-#nova-run-game.settings-open .nr-orientation,
-#nova-run-game.settings-open .nr-brand {
-  opacity: 0 !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
+/*
+ * 设置或其他模态窗口打开时，彻底移除底层 HUD。
+ * 使用直接子元素选择器，避免误伤设置窗口内部元素。
+ */
+#nova-run-game.settings-open > .nr-quick-controls,
+#nova-run-game.settings-open > .nr-orientation,
+#nova-run-game.settings-open > .nr-brand,
+#nova-run-game.settings-open > .nr-pause-status,
+#nova-run-game.modal-open > .nr-quick-controls,
+#nova-run-game.modal-open > .nr-orientation,
+#nova-run-game.modal-open > .nr-brand,
+#nova-run-game.modal-open > .nr-pause-status {
+  display: none !important;
 }
-#nova-run-game[data-theme="light"].settings-open .nr-toolbar {
-  background:rgb(247,243,237) !important;
+
+/*
+ * 设置面板建立独立绘制层，避免手机浏览器的合成层残影。
+ */
+#nova-run-game.settings-open > .nr-toolbar {
+  isolation: isolate;
+}
+
+/*
+ * 面板使用完全不透明背景。
+ */
+#nova-run-game[data-theme="light"].settings-open > .nr-toolbar {
+  background: rgb(247, 243, 237) !important;
+}
+
+#nova-run-game[data-theme="dark"].settings-open > .nr-toolbar {
+  background: rgb(21, 23, 24) !important;
+}
+
+/*
+ * 固定日间模式标签栏和选中项的绘制效果。
+ * 防止旧规则、点击状态或手机合成层形成深色上沿。
+ */
+#nova-run-game[data-theme="light"].settings-open .nr-panel-tabs {
+  background: rgb(233, 225, 215) !important;
+  border-color: rgb(215, 203, 192) !important;
+}
+
+#nova-run-game[data-theme="light"].settings-open
+.nr-panel-tabs button[aria-selected="true"] {
+  position: relative;
+  z-index: 1;
+  transform: none !important;
+  filter: none !important;
+  background: rgb(255, 250, 244) !important;
+  box-shadow:
+    0 1px 3px rgba(75, 58, 43, 0.10),
+    inset 0 -2px rgb(197, 106, 73) !important;
 }
