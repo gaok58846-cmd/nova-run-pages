@@ -5,10 +5,49 @@ function ghost(ctx,x,y,h,alpha,color){ctx.save();ctx.globalAlpha=alpha;ctx.fillS
 function skinColors(model){const C=model.theme||{},skin=model.skin||{},p=skin.palette||{};return{body:p.body||C.fg||'#f6f0e7',shade:p.bodyShade||C.card||'#39404a',visor:p.visor||model.accent||C.two||'#7bd9e6',core:p.core||C.two||'#ff9c67',outline:p.outline||model.accent||C.one||'#7bd9e6',particle:p.particle||model.trail||C.three||'#8de0c0',trail:p.trail||model.trail||model.accent||C.one||'#72cae6',aurora:p.aurora||null,pattern:skin.pattern||'nova'}}
 function movementProfile(game){if(game.challenge)return{intensity:Math.max(0,Math.min(1,game.motionIntensity||0)),cadence:9+(game.motionIntensity||0)*13,stride:5+(game.motionIntensity||0)*12,armCadence:9+(game.motionIntensity||0)*13,armSwing:8+(game.motionIntensity||0)*17,armLift:4+(game.motionIntensity||0)*12,lean:.01+(game.motionIntensity||0)*.12,bob:.6+(game.motionIntensity||0)*1.7};const ranges={easy:[355,650,.12],medium:[430,840,.42],hard:[510,980,.7]},range=ranges[game.diff]||ranges.medium,progress=Math.max(0,Math.min(1,(game.speed-range[0])/Math.max(1,range[1]-range[0]))),intensity=Math.min(1,range[2]+progress*.3),cadence=10.5+intensity*13.5;return{intensity,cadence,stride:5+intensity*12,armCadence:cadence,armSwing:8+intensity*17,armLift:4+intensity*12,lean:.01+intensity*.12,bob:.6+intensity*1.7}}
 function draw(ctx,model){
-  const {player:p,game,reducedMotion,theme:C}=model,S=skinColors(model),motion=movementProfile(game),sliding=p.slide&&p.ground,h=sliding?36:p.h,py=p.y+p.h-h,secondJump=!p.ground&&p.jumps===2,moving=!game.challenge||motion.intensity>.035,phaseStrength=game.challenge?(moving?motion.intensity:0):1,runPhase=Math.sin(game.time*motion.cadence)*phaseStrength*(reducedMotion?.45:1),armPhase=Math.sin(game.time*motion.armCadence+.22)*phaseStrength*(reducedMotion?.5:1),activeAccent=game.over>0||p.dash>0?C.three:S.outline;
+  const {player:p,game,reducedMotion,theme:C}=model,S=skinColors(model),motion=movementProfile(game),sliding=p.slide&&p.ground,h=sliding?36:p.h,py=p.y+p.h-h,secondJump=!p.ground&&p.jumps===2,moving=!game.challenge||motion.intensity>.035,phaseStrength=game.challenge?(moving?motion.intensity:0):1,runPhase=Math.sin(game.time*motion.cadence)*phaseStrength*(reducedMotion?.45:1),armPhase=Math.sin(game.time*motion.armCadence+.22)*phaseStrength*(reducedMotion?.5:1),boosting=game.over>0||p.dash>0;
   if(p.dash>0&&!reducedMotion)for(let i=4;i>0;i--)ghost(ctx,p.x-i*15,py+(4-i)*.7,h,.035+i*.045,S.trail);
   ctx.save();ctx.translate(p.x+p.w/2,py+h/2);if(p.land>0)ctx.scale(1.09,.91);if(p.hurt)ctx.rotate(-.48);else if(p.dash>0)ctx.rotate(.09);else if(!p.ground&&!reducedMotion)ctx.rotate(secondJump?Math.sin(game.time*10)*.16:p.vy/5200);else if(p.ground&&!sliding&&moving)ctx.rotate(motion.lean*(reducedMotion?.45:1));if(p.ground&&!sliding&&!p.hurt&&moving)ctx.translate(0,Math.abs(runPhase)*motion.bob);ctx.translate(-p.w/2,-h/2);
-  ctx.shadowBlur=8;ctx.shadowColor=activeAccent;ctx.lineCap='round';ctx.lineJoin='round';
+  const activeAccent = boosting
+  ? ctx.createLinearGradient(
+      5,
+      2,
+      37,
+      h
+    )
+  : S.outline;
+
+if(boosting){
+  /*
+   * 超载：暖橙高光 → 皮肤主色 → 冷青蓝
+   * 普通冲刺：减少橙色，保持更克制。
+   */
+  activeAccent.addColorStop(
+    0,
+    game.over > 0
+      ? C.two
+      : S.outline
+  );
+
+  activeAccent.addColorStop(
+    .42,
+    S.outline
+  );
+
+  activeAccent.addColorStop(
+    1,
+    C.one
+  );
+}
+  ctx.shadowBlur =
+  boosting && !reducedMotion
+    ? 10
+    : 8;
+
+ctx.shadowColor =
+  boosting
+    ? S.trail
+    : S.outline;ctx.lineCap='round';ctx.lineJoin='round';
   if(!sliding){const scarf=12+motion.intensity*14+(game.over>0?18:0);ctx.fillStyle=S.trail;ctx.globalAlpha=reducedMotion?.55:.72;ctx.beginPath();ctx.moveTo(12,23);ctx.lineTo(-scarf,18-runPhase*.12);ctx.lineTo(8,31);ctx.closePath();ctx.fill();if(S.pattern==='prism'){ctx.fillStyle=S.particle;ctx.globalAlpha=.4;ctx.beginPath();ctx.moveTo(8,25);ctx.lineTo(-scarf*.72,29+runPhase*.08);ctx.lineTo(7,33);ctx.closePath();ctx.fill()}ctx.globalAlpha=1}
   if(sliding){const reach=39+motion.intensity*8;ctx.strokeStyle=activeAccent;ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(8,29);ctx.lineTo(29,29);ctx.lineTo(reach,34);ctx.moveTo(14,24);ctx.lineTo(4-motion.intensity*4,32);ctx.stroke();rounded(ctx,10,12,27,17,8,S.body,activeAccent);rounded(ctx,18,3,19,16,7,S.shade,activeAccent);rounded(ctx,23,7,13,5,2,S.visor);ctx.fillStyle=activeAccent;ctx.fillRect(8,27,28,3)}else{
     const legA=p.ground?runPhase*motion.stride:secondJump?-6-motion.intensity*3:5+motion.intensity*5,legB=p.ground?-runPhase*motion.stride:secondJump?6+motion.intensity*3:-4-motion.intensity*4,armA=p.ground?-armPhase*motion.armSwing:secondJump?-5:-9-motion.intensity*4,armB=p.ground?armPhase*motion.armSwing:secondJump?5:-8-motion.intensity*3,liftA=p.ground?Math.max(0,-armPhase)*motion.armLift:0,liftB=p.ground?Math.max(0,armPhase)*motion.armLift:0,dropA=p.ground?Math.max(0,armPhase)*3:0,dropB=p.ground?Math.max(0,-armPhase)*3:0;
