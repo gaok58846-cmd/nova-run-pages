@@ -5,6 +5,36 @@ function create(options){
   const settingsPanel=q('.nr-toolbar'),settingsBackdrop=q('[data-settings-backdrop]'),settingsScroll=q('.nr-settings-scroll'),profilePanel=q('[data-profile-panel]'),tutorialPanel=q('[data-tutorial]'),resultsPanel=q('[data-results]'),sharePanel=q('[data-share-panel]'),confirmPanel=q('[data-confirm]'),toastPanel=q('[data-toast]'),installPanel=q('[data-ios-install]'),appInstall=q('[data-app-install]'),appInstallAction=q('[data-app-install-action]'),appInstallCopy=q('[data-app-install-copy]'),updatePanel=q('[data-update-prompt]'),updateMessage=q('[data-update-message]');
   const scenePicker=q('[data-scene-picker]'),difficultyField=q('.nr-difficulty-setting'),skinSelect=q('[data-setting="skin"]'),content=globalThis.NovaRunConfig.CONTENT,PlayerRenderer=globalThis.NovaRunPlayerRenderer;
   let tutorialIndex=-1,lastSummary=null,toastTimer=0,sceneMode='runner',selectMenu=null,currentSettingsPage='map',modalWasOpen=false,settingsHistoryToken='',ignoreSettingsPop=false;
+  const settingsHud=[
+  q('.nr-quick-controls'),
+  q('.nr-orientation'),
+  q('.nr-brand'),
+  q('.nr-pause-status')
+].filter(Boolean);
+
+function setSettingsHudHidden(hidden){
+  for(const element of settingsHud){
+    element.hidden=hidden;
+
+    if(hidden){
+      /*
+       * 使用行内 !important，直接压过项目中已有的
+       * display:flex!important 和移动端横屏规则。
+       */
+      element.style.setProperty(
+        'display',
+        'none',
+        'important'
+      );
+    }else{
+      /*
+       * 关闭设置后移除行内覆盖，
+       * 让原来的菜单、游戏和暂停 CSS 自己决定显示状态。
+       */
+      element.style.removeProperty('display');
+    }
+  }
+}
   const tutorialSteps=[['jump','tutorialJumpTitle','tutorialJumpText'],['slide','tutorialSlideTitle','tutorialSlideText'],['doubleJump','tutorialDoubleTitle','tutorialDoubleText'],['dashBreak','tutorialDashTitle','tutorialDashText'],['collect','tutorialCollectTitle','tutorialCollectText']];
         /* =========================================================
      NOVA RUN — CROSS-BROWSER LONG-PRESS GUARD V20
@@ -496,8 +526,50 @@ function create(options){
     settingsScroll.scrollTop=0;
     if(currentSettingsPage==='character')renderSkins();
   }
-  function openSettings(page){renderSettings();root.classList.add('settings-open');settingsPanel.setAttribute('aria-hidden','false');profilePanel.hidden=true;setSettingsPage(page||root.dataset.settingsPage||'map');pushSettingsHistory();modalState()}
-  function closeSettings({resume=false,consumeHistory=true}={}){selectMenu?.close('settings-close');qa('.is-choosing').forEach(card=>card.classList.remove('is-choosing'));root.classList.remove('settings-open');settingsPanel.setAttribute('aria-hidden','true');clearSettingsHistory(consumeHistory);modalState({resume})}
+  function openSettings(page){
+  renderSettings();
+
+  setSettingsHudHidden(true);
+
+  root.classList.add('settings-open');
+  settingsPanel.setAttribute(
+    'aria-hidden',
+    'false'
+  );
+
+  profilePanel.hidden=true;
+
+  setSettingsPage(
+    page||
+    root.dataset.settingsPage||
+    'map'
+  );
+
+  pushSettingsHistory();
+  modalState();
+}
+  function closeSettings({
+  resume=false,
+  consumeHistory=true
+}={}){
+  selectMenu?.close('settings-close');
+
+  qa('.is-choosing').forEach(
+    card=>card.classList.remove('is-choosing')
+  );
+
+  root.classList.remove('settings-open');
+
+  setSettingsHudHidden(false);
+
+  settingsPanel.setAttribute(
+    'aria-hidden',
+    'true'
+  );
+
+  clearSettingsHistory(consumeHistory);
+  modalState({resume});
+}
     function updateSceneFocus(card){
     const panel=q('[data-scene-focus]');
 
