@@ -2351,3 +2351,19 @@ html,body{height:100%;min-height:100%;overflow:hidden;overscroll-behavior:none}
     margin: 4px 0 !important;
   }
 }
+/* =========================================================
+   NOVA RUN V30 — HIDE GAME HUD BEHIND MODALS
+   Prevent mobile landscape control shadows from leaking
+   through the settings panel.
+   ========================================================= */
+
+#nova-run-game.settings-open .nr-quick-controls,
+#nova-run-game.settings-open .nr-orientation,
+#nova-run-game.settings-open .nr-brand {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+#nova-run-game[data-theme="light"].settings-open .nr-toolbar {
+  background:rgb(247,243,237) !important;
+}
