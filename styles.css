@@ -2410,3 +2410,46 @@ html,body{height:100%;min-height:100%;overflow:hidden;overscroll-behavior:none}
     0 1px 3px rgba(75, 58, 43, 0.10),
     inset 0 -2px rgb(197, 106, 73) !important;
 }
+/* =========================================================
+   NOVA RUN V33 — MOBILE LANDSCAPE COMPOSITOR FIX
+   ========================================================= */
+
+@media (pointer: coarse) and
+       (orientation: landscape) and
+       (max-height: 600px) {
+
+  /*
+   * Android Chromium may retain/sample dark HUD layers through
+   * backdrop-filter even after the HUD is hidden.
+   */
+  #nova-run-game.settings-open > .nr-toolbar {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+
+    contain: paint;
+    isolation: isolate;
+  }
+
+  /*
+   * Use a fully opaque paint surface.
+   */
+  #nova-run-game[data-theme="light"].settings-open > .nr-toolbar {
+    background: rgb(247, 243, 237) !important;
+  }
+
+  #nova-run-game[data-theme="dark"].settings-open > .nr-toolbar {
+    background: rgb(21, 23, 24) !important;
+  }
+
+  /*
+   * Keep the underlying HUD out of both layout and compositing.
+   */
+  #nova-run-game.settings-open > .nr-quick-controls,
+  #nova-run-game.settings-open > .nr-orientation,
+  #nova-run-game.settings-open > .nr-brand,
+  #nova-run-game.settings-open > .nr-pause-status {
+    display: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+  }
+}
