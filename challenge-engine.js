@@ -10,7 +10,7 @@ function polygon(ctx,points,fill,stroke){ctx.beginPath();ctx.moveTo(points[0][0]
 function rounded(ctx,x,y,w,h,r,fill,stroke){ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,h,r);else ctx.rect(x,y,w,h);ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.stroke()}}
 function drawFinishGate(ctx,state,height,finish,style={}){
   const floor=height*(style.floorRatio||.82),x=finish.x,y=floor+finish.y,w=finish.w,h=finish.h,primary=style.primary||'#f0bd62',secondary=style.secondary||'#fff0c7',body=style.body||'#5f4934',energy=style.energy||'#78d996',motion=state.reducedMotion?0:state.time;
-  ctx.save();ctx.lineCap='round';ctx.lineJoin='round';ctx.shadowBlur=10;ctx.shadowColor=primary;
+  ctx.save();ctx.lineCap='round';ctx.lineJoin='round';ctx.shadowBlur=state.reducedMotion||state.renderQuality<.7?0:6;ctx.shadowColor=primary;
   rounded(ctx,x-17,floor-12,w+34,12,5,body,primary);rounded(ctx,x-13,y+31,18,h-31,7,body,primary);rounded(ctx,x+w-5,y+31,18,h-31,7,body,primary);
   ctx.lineWidth=12;ctx.strokeStyle=body;ctx.beginPath();ctx.moveTo(x-4,y+35);ctx.quadraticCurveTo(x+w/2,y-19,x+w+4,y+35);ctx.stroke();ctx.lineWidth=4;ctx.strokeStyle=primary;ctx.stroke();
   const pulse=state.reducedMotion ? .14 : .12+Math.sin(motion*2.2)*.025;ctx.globalAlpha=pulse;rounded(ctx,x+8,y+34,w-16,h-43,Math.min(22,w*.28),energy);ctx.globalAlpha=1;

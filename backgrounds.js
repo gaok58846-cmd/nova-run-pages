@@ -100,7 +100,7 @@ function drawWindows(ctx,x,y,w,h,building,C,alpha,quality){
 }
 
 function drawBuilding(ctx,building,base,layer,C,quality){
-  const x=building.x,w=building.width,h=building.height,y=base-h,alpha=LAYERS[layer].alpha,fill=rgba(building.tone>.52?C.card:C.border,alpha),edge=rgba(building.tone>.52?C.one:C.two,alpha*.42);
+  const x=building.x,w=building.width,h=building.height,y=base-h,alpha=LAYERS[layer].alpha,bright=building.tone>.72,fill=rgba(bright?C.card:C.border,alpha),edge=rgba(bright?C.one:C.two,alpha*.5);
   ctx.fillStyle=fill;ctx.strokeStyle=edge;ctx.lineWidth=1;
   switch(building.kind){
     case 'stepped':case 'artdeco':{
@@ -127,6 +127,7 @@ function drawBuilding(ctx,building,base,layer,C,quality){
     default:ctx.fillRect(x,y,w,h);ctx.strokeRect(x+.5,y+.5,w-1,h-1);
   }
   if(building.roof>.72&&building.kind!=='spire'){ctx.strokeStyle=edge;ctx.beginPath();ctx.moveTo(x+w*.5,y);ctx.lineTo(x+w*.5,y-9-building.detail*2);ctx.stroke()}
+  if(quality>=.7&&w>42&&h>72){ctx.fillStyle=rgba(bright?C.one:C.fg,alpha*.07);ctx.fillRect(Math.round(x+w*.18),Math.round(y+8),Math.max(2,Math.round(w*.08)),Math.max(8,Math.round(h-16)));ctx.fillStyle=rgba(C.bg,alpha*.12);ctx.fillRect(Math.round(x+w*.68),Math.round(y+5),Math.max(2,Math.round(w*.05)),Math.max(8,Math.round(h-10)))}
   drawWindows(ctx,x,y,w,h,building,C,alpha,quality);
 }
 
@@ -143,8 +144,8 @@ function drawLandmark(ctx,descriptor,base,C){
 }
 
 function create({ctx}){
-  let width=900,height=650,dpr=1,scene='guangzhou',seed='nova',theme='dark',quality=1,paletteKey='',cache=new Map(),skyGradient=null;
-  function invalidate(){cache.clear();skyGradient=null}
+  let width=900,height=650,dpr=1,scene='guangzhou',seed='nova',theme='dark',quality=1,paletteKey='',cache=new Map(),skyGradient=null,waterGradient=null,reflectionGradient=null;
+  function invalidate(){cache.clear();skyGradient=null;waterGradient=null;reflectionGradient=null}
   function resize(next={}){const changed=next.width!==width||next.height!==height||next.dpr!==dpr||next.theme!==theme||next.quality!==quality;width=next.width||width;height=next.height||height;dpr=next.dpr||dpr;theme=next.theme||theme;quality=next.quality==null?quality:next.quality;if(changed)invalidate()}
   function setScene(next,nextSeed){if(next!==scene||String(nextSeed)!==String(seed)){scene=TYPES[next]?next:'guangzhou';seed=String(nextSeed||'nova');invalidate()}}
   function cacheChunk(layer,index,C,frameQuality){
@@ -155,7 +156,7 @@ function create({ctx}){
     cache.set(key,canvas);while(cache.size>CACHE_LIMIT)cache.delete(cache.keys().next().value);return canvas;
   }
   function drawSky(C){if(!skyGradient){const colors=scene==='volcano'?[C.bg,C.two]:scene==='snow'?[C.four,C.fg]:scene==='jiuzhaigou'?[C.one,C.three]:scene==='shenzhen'?[C.bg,C.three]:scene==='shanghai'?[C.bg,C.one]:[C.bg,C.four];skyGradient=ctx.createLinearGradient(0,0,0,height);skyGradient.addColorStop(0,colors[0]);skyGradient.addColorStop(.62,rgba(colors[1],theme==='light'?.26:.2));skyGradient.addColorStop(1,rgba(C.bg,.96))}ctx.fillStyle=skyGradient;ctx.fillRect(0,0,width,height)}
-  function drawJiuzhaiWater(frame,C){const top=height*WATER_TOP_RATIO,bottom=frame.floor,water=ctx.createLinearGradient(0,top,0,bottom);water.addColorStop(0,rgba(C.three,theme==='light'?.28:.22));water.addColorStop(.48,rgba(C.one,theme==='light'?.24:.17));water.addColorStop(1,rgba(C.bg,.18));ctx.fillStyle=water;ctx.fillRect(0,top,width,Math.max(1,bottom-top));ctx.fillStyle=rgba(C.fg,.08);for(let i=0;i<6;i++){const x=mod(i*211-frame.distance*.22,width+100)-50,w=34+(i%3)*23;ctx.fillRect(x,top+28+i*17,w,1)}if(!frame.reducedMotion){ctx.strokeStyle=rgba(C.fg,.1);ctx.lineWidth=1;for(let row=0;row<5;row++){const y=top+48+row*31;ctx.beginPath();for(let x=0;x<=width;x+=36)ctx.lineTo(x,y+Math.sin(x*.026+frame.time*.7+row)*1.7);ctx.stroke()}}const reflection=ctx.createLinearGradient(0,top,0,bottom);reflection.addColorStop(0,rgba(C.fg,.09));reflection.addColorStop(1,rgba(C.fg,0));ctx.fillStyle=reflection;for(let i=0;i<5;i++){const x=mod(i*257-frame.distance*.14,width+120)-60;ctx.fillRect(x,top+5,12+(i%3)*9,Math.max(18,(bottom-top)*(.25+(i%2)*.12)))}}
+  function drawJiuzhaiWater(frame,C){const top=height*WATER_TOP_RATIO,bottom=frame.floor;if(!waterGradient){waterGradient=ctx.createLinearGradient(0,top,0,bottom);waterGradient.addColorStop(0,rgba(C.three,theme==='light'?.28:.22));waterGradient.addColorStop(.48,rgba(C.one,theme==='light'?.24:.17));waterGradient.addColorStop(1,rgba(C.bg,.18));reflectionGradient=ctx.createLinearGradient(0,top,0,bottom);reflectionGradient.addColorStop(0,rgba(C.fg,.09));reflectionGradient.addColorStop(1,rgba(C.fg,0))}ctx.fillStyle=waterGradient;ctx.fillRect(0,top,width,Math.max(1,bottom-top));ctx.fillStyle=rgba(C.fg,.08);for(let i=0;i<6;i++){const x=mod(i*211-frame.distance*.22,width+100)-50,w=34+(i%3)*23;ctx.fillRect(x,top+28+i*17,w,1)}if(!frame.reducedMotion){ctx.strokeStyle=rgba(C.fg,.1);ctx.lineWidth=1;for(let row=0;row<5;row++){const y=top+48+row*31;ctx.beginPath();for(let x=0;x<=width;x+=36)ctx.lineTo(x,y+Math.sin(x*.026+frame.time*.7+row)*1.7);ctx.stroke()}}ctx.fillStyle=reflectionGradient;for(let i=0;i<5;i++){const x=mod(i*257-frame.distance*.14,width+120)-60;ctx.fillRect(x,top+5,12+(i%3)*9,Math.max(18,(bottom-top)*(.25+(i%2)*.12)))}}
   function drawLayer(layer,frame,C,frameQuality){const layerIndex=LAYERS.indexOf(layer),camera=Math.max(0,frame.distance)*layer.speed,indices=visibleChunkIndices(frame.distance,width,layer.speed);for(const index of indices){const image=cacheChunk(layerIndex,index,C,frameQuality),x=snap(index*CHUNK_WIDTH-camera,dpr);ctx.drawImage(image,x,0,CHUNK_WIDTH,height)}}
   function ambient(frame,C){
     const time=frame.reducedMotion?0:frame.time,base=frame.floor;ctx.save();

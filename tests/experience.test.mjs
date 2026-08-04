@@ -21,6 +21,10 @@ assert.ok(!ui.includes('card.disabled=!open'),'locked map cards remain interacti
 assert.match(ui,/card\.dataset\.locked/,'map selection uses a single interactive locked-state path');
 assert.match(game,/overReady=true/,'full energy exposes a NOVA-ready state before overload');
 assert.match(game,/function activateOverdrive/,'overload has an explicit player activation path');
+assert.match(game,/function setTutorialGate\(value\)[\s\S]*stopLoop\(\)[\s\S]*Sound\.setPlaying\(false\)/,'first-play instruction freezes both rendering and audio');
+assert.match(game,/if\(game\.tutorialGate\)releaseTutorialGate\(\)/,'the first jump immediately hands control back to the player');
+assert.match(ui,/tutorialOverdriveTitle/,'the tutorial culminates in a complete NOVA overload moment');
+assert.match(game,/OVERDRIVE_DURATION=4\.8,OVERDRIVE_READY_WINDOW=3\.2/,'overload has a deliberate activation window and readable duration');
 assert.match(game,/game\.diff==='easy'&&game\.rescueAvailable/,'only easy endless runs receive the one-use rescue');
 assert.match(game,/if\(p\.shield>0\).*shieldRescue/,'a shield can rescue a pit fall');
 assert.match(game,/if\(plan\.highlight\)/,'signature obstacle sequences announce a highlight moment');
@@ -33,6 +37,7 @@ assert.match(game,/function drawActionCue\(o\)\{\s*if\(game\.diff!=='easy'\)retu
 assert.match(game,/function drawWarning\(o\)\{if\(!o\.warning/,'essential hazard warnings remain a separate all-difficulty path');
 assert.match(game,/mountainInput=\{[^}]*autoRun:false/,'challenge movement defaults to fully manual control');
 assert.match(game,/if\(globalThis\.PointerEvent\)[\s\S]*button\.addEventListener\('pointerdown'/,'mouse, pen, and touch share one Pointer Events control path');
+assert.match(game,/activeControlPointers\.has\(event\.pointerId\)[\s\S]*activeControlPointers\.delete\(event\.pointerId\)/,'each touch control pointer starts and ends exactly once');
 assert.match(game,/else\{\s*const stopTouch=/,'older browsers retain a touch-event fallback');
 assert.match(css,/@media\(pointer:coarse\)[\s\S]*data-mode="play"\] \.nr-touch\{display:grid!important\}/,'touch controls use the final ergonomic grid during play');
 assert.match(css,/data-game-type="challenge"\] \.nr-touch \[data-act="slide"\]\{display:none!important\}/,'challenge hides the unused slide action');
@@ -44,6 +49,7 @@ assert.match(css,/data-theme="light"\] \.nr-panel-tabs\{[\s\S]*background:#ece5d
 assert.match(css,/data-theme="light"\] \.nr-icon-button[\s\S]*linear-gradient/,'day close button uses a warm editorial surface');
 assert.match(game,/function disposeActiveSession\(\)[\s\S]*stopLoop\(\)[\s\S]*mountainState=null[\s\S]*things:\[\][\s\S]*particles:\[\]/,'mode switching fully disposes the active map, player effects, and render loop');
 assert.match(game,/function clearInputState\(\)[\s\S]*autoRun:false/,'mode switching clears keyboard, pointer, and auto-run state');
+assert.match(game,/function hudTop\(\)\{return cachedHudTop\}/,'HUD rendering no longer performs DOM layout reads every frame');
 assert.match(ui,/function resetTransient\(\)[\s\S]*clearTimeout\(toastTimer\)[\s\S]*closeSettings\(\{resume:false,consumeHistory:false\}\)/,'mode switching clears transient UI without resuming a disposed run');
 assert.match(game,/const activeSession=game\.mode!=='menu';if\(activeSession\)disposeActiveSession\(\)/,'changing maps during play returns through a clean loading state');
 for(const source of [mountain,tide,sand])assert.doesNotMatch(source,/[↑↓←→↥↧]/,'challenge maps contain no route or danger arrows');

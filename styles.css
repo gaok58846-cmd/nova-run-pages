@@ -1809,6 +1809,36 @@ html,body{height:100%;min-height:100%;overflow:hidden;overscroll-behavior:none}
   touch-action: none !important;
 }
 
+/* The tutorial is a compact lower-third. The opening step owns the game clock,
+   so the route stays still until the player performs the first jump. */
+#nova-run-game .nr-tutorial{
+  top:auto;
+  bottom:max(22px,calc(var(--safe-bottom) + 18px));
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:2px 14px;
+  width:min(520px,calc(100% - 28px));
+  padding:11px 13px 12px;
+  text-align:left;
+  border-color:rgba(116,213,139,.62);
+  box-shadow:0 12px 30px rgba(0,0,0,.25),inset 3px 0 rgba(116,213,139,.58);
+}
+#nova-run-game .nr-tutorial-head{display:contents}
+#nova-run-game .nr-tutorial-step{align-self:center;grid-column:1;grid-row:1}
+#nova-run-game .nr-tutorial-head .nr-close-button{grid-column:2;grid-row:1/4;align-self:center;pointer-events:auto}
+#nova-run-game .nr-tutorial strong{grid-column:1;margin-top:1px;font-size:16px}
+#nova-run-game .nr-tutorial p{grid-column:1;margin:3px 0 0;line-height:1.45}
+#nova-run-game .nr-tutorial>.btn{display:none}
+#nova-run-game[data-tutorial-gate="on"] .nr-tutorial{border-color:var(--viz-series-3);box-shadow:0 14px 34px rgba(0,0,0,.3),inset 3px 0 var(--viz-series-3)}
+@media(pointer:coarse),(max-width:700px){
+  #nova-run-game .nr-tutorial{bottom:calc(var(--safe-bottom) + var(--visual-bottom-offset,0px) + 96px);width:min(480px,calc(100% - 20px));padding:9px 11px}
+  #nova-run-game .nr-tutorial strong{font-size:15px}
+  #nova-run-game .nr-tutorial p{font-size:11px}
+}
+@media(pointer:coarse) and (orientation:landscape) and (max-height:520px){
+  #nova-run-game .nr-tutorial{top:auto;left:50%;bottom:calc(var(--safe-bottom) + var(--visual-bottom-offset,0px) + 68px);transform:translateX(-50%);width:min(500px,58%)}
+}
+
 /* ---------------------------------------------------------
    Premium locked challenge-card treatment
    --------------------------------------------------------- */

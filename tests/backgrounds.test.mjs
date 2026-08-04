@@ -34,7 +34,8 @@ assert.doesNotMatch(game,/panels=shift<\.5\?1:2/,'the discontinuous whole-screen
 assert.match(game,/backgroundRenderer\.render\(/,'runner scenes use the chunk renderer');
 assert.match(backgrounds,/drawLayer\(LAYERS\[0\][\s\S]*drawJiuzhaiWater[\s\S]*layer!==LAYERS\[0\]/,'Jiuzhaigou renders distant terrain, then water, then shore and island layers');
 assert.match(html,/backgrounds\.js[\s\S]*state-effects\.js[\s\S]*game\.js/,'background and state modules load before the game');
-assert.ok(sw.includes("'./backgrounds.js?v=20260723-mobile-pwa12'")&&sw.includes("'./state-effects.js?v=20260723-mobile-pwa12'"),'new modules are available offline');
+const build=html.match(/data-build="([^"]+)"/)?.[1];
+assert.ok(build&&sw.includes(`'./backgrounds.js?v=${build}'`)&&sw.includes(`'./state-effects.js?v=${build}'`),'new modules are available offline');
 assert.doesNotMatch(effects,/strokeRect|ellipse\(W|ellipse\(width|arc\([^\n]*Math\.min\(width,height\)/,'state effects contain no full-screen geometric outlines');
 assert.doesNotMatch(effects,/moveTo\(0,[^\n]*lineTo\(width|moveTo\(width,[^\n]*lineTo\(0/,'state effects contain no cross-screen status lines');
 assert.match(effects,/drawHexShield[\s\S]*drawMagnetParticles[\s\S]*drawSlowDust[\s\S]*drawReadyCore/,'all power states use local player-centered effects');

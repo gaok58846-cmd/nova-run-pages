@@ -23,7 +23,7 @@ function create(options){
   const standaloneQuery=matchMedia('(display-mode: standalone)');
   const fullscreenDisplayQuery=matchMedia('(display-mode: fullscreen)');
   const coarseQuery=matchMedia('(pointer: coarse)');
-  let viewportFrame=0,activeRegistration=null,pendingWorker=null,deferredInstall=earlyInstallPrompt,gameMode='menu',reloadWhenSafe=false,reloadingForUpdate=false,installed=false;
+  let viewportFrame=0,viewportSettle=0,lastViewportKey='',activeRegistration=null,pendingWorker=null,deferredInstall=earlyInstallPrompt,gameMode='menu',reloadWhenSafe=false,reloadingForUpdate=false,installed=false;
 
   const fullscreenElement=()=>document.fullscreenElement||document.webkitFullscreenElement||null;
   const isStandalone=()=>standaloneQuery.matches||navigator.standalone===true;
@@ -64,7 +64,7 @@ function create(options){
 
   function applyViewport(){
     viewportFrame=0;
-    const vv=window.visualViewport,height=Math.round(vv?.height||innerHeight),top=Math.max(0,Math.round(vv?.offsetTop||0)),bottom=Math.max(0,Math.round(innerHeight-height-top));
+    const vv=window.visualViewport,layoutHeight=Math.max(1,Math.round(innerHeight||document.documentElement.clientHeight||1)),visualHeight=Math.max(1,Math.round(vv?.height||layoutHeight)),height=Math.min(layoutHeight,visualHeight),top=Math.max(0,Math.min(height-1,Math.round(vv?.offsetTop||0))),bottom=Math.max(0,layoutHeight-height-top);
     root.style.setProperty('--app-height',`${height}px`);
     root.style.setProperty('--visual-top-offset',`${top}px`);
     root.style.setProperty('--visual-bottom-offset',`${bottom}px`);
@@ -77,9 +77,11 @@ function create(options){
     root.classList.toggle('is-immersive',immersive);
     document.documentElement.classList.toggle('nr-immersive',immersive);
     document.body?.classList.toggle('nr-immersive',immersive);
-    if(options.onLayoutChange)options.onLayoutChange();
+    const viewportKey=`${innerWidth}|${height}|${top}|${bottom}|${fullscreen}|${standalone}|${immersive}`;
+    if(viewportKey!==lastViewportKey){lastViewportKey=viewportKey;if(options.onLayoutChange)options.onLayoutChange()}
   }
-  function scheduleViewport(){if(viewportFrame)return;viewportFrame=requestAnimationFrame(applyViewport)}
+  function settleViewport(){applyViewport();if(viewportSettle>0){viewportSettle--;viewportFrame=requestAnimationFrame(settleViewport)}}
+  function scheduleViewport(){viewportSettle=Math.max(viewportSettle,10);if(!viewportFrame)viewportFrame=requestAnimationFrame(settleViewport)}
 
   function requestFullscreen(){
     const request=root.requestFullscreen||root.webkitRequestFullscreen;

@@ -49,7 +49,9 @@ assert.match(platform,/dataset\.immersive/,'immersive state reaches the root lay
 }
 assert.match(platform,/register\('\.\/sw\.js',\{scope:'\.\/',updateViaCache:'none'\}\)/,'service worker uses the GitHub Pages subpath scope');
 assert.match(sw,/request\.mode==='navigate'/);assert.match(sw,/cache:'no-store'/);assert.doesNotMatch(sw,/cache\.put\([^\n]*response\)(?!\.clone)/);
-assert.ok(html.includes('2026-07-23-mobile-pwa12')&&sw.includes("BUILD='2026-07-23-mobile-pwa12'"),'page and service worker share one build id');
+const build=html.match(/data-build="([^"]+)"/)?.[1];
+assert.ok(build&&sw.includes(`BUILD='${build}'`),'page and service worker share one build id');
+for(const source of html.matchAll(/(?:src="\.\/[^"?]+\.js|href="\.\/styles\.css)\?v=([^"]+)"/g))assert.equal(source[1],build,'versioned core resources share the page build');
 
 assert.match(css,/--safe-top:env\(safe-area-inset-top/);assert.match(css,/--app-height/);assert.match(css,/--visual-bottom-offset/);
 assert.match(css,/#nova-run-game\.is-immersive,[^}]*border-radius:0!important/,'immersive layouts cannot reveal rounded corner gaps');

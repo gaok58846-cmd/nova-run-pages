@@ -87,11 +87,32 @@ function drawReadyCore(ctx,p,C,time,reduced,lowQuality){
 function drawPerfectCut(ctx,p,C,time,amount){
   const cx=p.x+p.w/2,cy=p.y+p.h/2,progress=1-Math.min(1,amount/.36),radius=32+progress*34;ctx.save();ctx.translate(cx,cy);ctx.rotate(-.5);ctx.globalAlpha=(1-progress)*.5;ctx.fillStyle=C.fg;for(const side of [-1,1]){polygon(ctx,[[side*(radius-5),-2],[side*(radius+22),-5],[side*(radius+10),2],[side*(radius-3),4]]);ctx.fill()}ctx.restore();
 }
+function drawOverImpact(ctx,p,C,amount,finish){
+  const cx=p.x+p.w/2,cy=p.y+p.h*.48,limit=finish?.62:.3,progress=1-Math.min(1,amount/limit),radius=24+progress*(finish?86:42);ctx.save();ctx.translate(cx,cy);ctx.globalAlpha=(1-progress)*(finish?.5:.68);ctx.fillStyle=finish?C.three:C.fg;for(let i=0;i<6;i++){const angle=i*Math.PI/3+(finish?.22:0),x=Math.cos(angle)*radius,y=Math.sin(angle)*radius*.62;ctx.save();ctx.translate(x,y);ctx.rotate(angle);polygon(ctx,[[0,-3],[finish?24:14,0],[0,3],[-5,0]]);ctx.fill();ctx.restore()}ctx.restore();
+}
+function drawSignatureMoment(ctx,frame,time){
+  const {game,palette:C,width,height,scene}=frame,amount=Math.min(1,game.signature/.75,(5.2-game.signature)/.45),base=height*.79;ctx.save();ctx.globalAlpha=Math.max(0,amount)*.42;const right=width*.7;
+  if(scene==='guangzhou'){
+    ctx.strokeStyle=C.one;ctx.lineWidth=1.5;for(let i=0;i<3;i++){const x=right+i*42+Math.sin(time*2+i)*7,y=height*.35+i*24;polygon(ctx,[[x-8,y-5],[x+8,y-5],[x+8,y+5],[x-8,y+5]]);ctx.stroke();ctx.fillStyle=C.two;diamond(ctx,x,y,2.5);ctx.fill()}ctx.fillStyle=rgba(C.two,.3);for(let i=0;i<5;i++)ctx.fillRect(width*.52+i*72,base-17,36,3);
+  }else if(scene==='shanghai'){
+    ctx.fillStyle=rgba(C.two,.32);for(let i=0;i<7;i++)ctx.fillRect(width*.5+i*42-time%1*18,base-48-(i%2)*7,24,3);ctx.fillStyle=rgba(C.one,.28);ctx.fillRect(width*.58,base-58,width*.34,12);
+  }else if(scene==='shenzhen'){
+    const scanX=width*.58+(Math.sin(time*1.8)*.5+.5)*width*.3,g=ctx.createLinearGradient(scanX-38,0,scanX+38,0);g.addColorStop(0,rgba(C.three,0));g.addColorStop(.5,rgba(C.three,.18));g.addColorStop(1,rgba(C.three,0));ctx.fillStyle=g;ctx.fillRect(scanX-38,height*.2,76,base-height*.2);ctx.fillStyle=C.three;for(let i=0;i<4;i++)diamond(ctx,scanX+Math.sin(i)*28,height*.3+i*55,3),ctx.fill();
+  }else if(scene==='snow'){
+    ctx.strokeStyle=rgba(C.fg,.55);ctx.lineWidth=1.5;for(let i=0;i<9;i++){const x=width*.48+(i*71+time*90)%(width*.52),y=height*.22+(i*47)%(base-height*.22);ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-18,y+8);ctx.stroke()}
+  }else if(scene==='volcano'){
+    ctx.fillStyle=C.two;for(let i=0;i<9;i++){const x=width*.5+(i*67)%(width*.48),y=base-18-((i*31+time*58)%(height*.38));diamond(ctx,x,y,2+(i%3));ctx.fill()}
+  }else if(scene==='jiuzhaigou'){
+    ctx.strokeStyle=rgba(C.three,.45);ctx.lineWidth=1.4;for(let i=0;i<4;i++){const x=width*.58+i*86,y=base-22-i%2*11;ctx.beginPath();ctx.ellipse(x,y,24+Math.sin(time*2+i)*5,5,0,0,7);ctx.stroke()}ctx.fillStyle=rgba(C.fg,.36);ctx.fillRect(width*.72,height*.43,5,base-height*.43-24);
+  }
+  ctx.restore();
+}
 
 function draw(ctx,frame){
   const p=frame.player,game=frame.game,C=frame.palette,width=frame.width,height=frame.height,time=frame.reducedMotion?0:game.time,lowQuality=frame.performanceMode==='performance'||frame.visualQuality<.7;
   const over=game.over>0,ready=game.overReady,dashing=p.dash>0,hurt=p.hurt>0,shield=p.shield>0,magnet=p.magnet>0,slowed=p.slow>0,perfect=game.perfect>0;
-  if(!over&&!ready&&!dashing&&!hurt&&!shield&&!magnet&&!slowed&&!perfect)return;
+  const signature=game.signature>0,overImpact=game.overPulse>0,overFinish=game.overFinish>0;
+  if(!over&&!ready&&!dashing&&!hurt&&!shield&&!magnet&&!slowed&&!perfect&&!signature&&!overImpact&&!overFinish)return;
   ctx.save();
   if(hurt)softVignette(ctx,width,height,C.two,Math.min(.16,.06+p.hurt*.1),p.x+p.w*.5,p.y+p.h*.5);
   else if(slowed)softVignette(ctx,width,height,C.four,.055,p.x+p.w*.5,p.y+p.h*.5);
@@ -144,6 +165,9 @@ function draw(ctx,frame){
   if(magnet)drawMagnetParticles(ctx,p,C,time,frame.reducedMotion,lowQuality);
   if(slowed)drawSlowDust(ctx,p,C,time,frame.reducedMotion,lowQuality);
   if(perfect&&!frame.reducedMotion)drawPerfectCut(ctx,p,C,time,game.perfect);
+  if(signature&&!frame.reducedMotion)drawSignatureMoment(ctx,frame,time);
+  if(overImpact&&!frame.reducedMotion)drawOverImpact(ctx,p,C,game.overPulse,false);
+  if(overFinish&&!frame.reducedMotion)drawOverImpact(ctx,p,C,game.overFinish,true);
   ctx.restore();
 }
 
