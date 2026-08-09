@@ -1392,6 +1392,19 @@ html,body{height:100%;min-height:100%;overflow:hidden;overscroll-behavior:none}
   }
 }
 
+/* Keep the portrait pause label on its own row below the top controls. */
+@media (pointer: coarse) and (orientation: portrait) {
+  #nova-run-game[data-game-type="runner"][data-mode="pause"] > .nr-pause-status {
+    top: calc(var(--safe-top) + var(--visual-top-offset, 0px) + 128px);
+    bottom: auto;
+  }
+
+  #nova-run-game[data-game-type="challenge"][data-mode="pause"] > .nr-pause-status {
+    top: calc(var(--safe-top) + var(--visual-top-offset, 0px) + 230px);
+    bottom: auto;
+  }
+}
+
 /* Extra-narrow landscape fallback:
    stack the preview and cards instead of squeezing both columns. */
 @media (pointer: coarse) and
