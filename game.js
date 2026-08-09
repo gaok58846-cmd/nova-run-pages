@@ -74,6 +74,7 @@
   function showOrientationHint(target){clearTimeout(orientationHintTimer);orientationHint.textContent=tr(target==='landscape'?'rotateLandscapeHint':'rotatePortraitHint');orientationHint.hidden=false;orientationHintTimer=setTimeout(()=>{orientationHint.hidden=true},2600)}
   function applyUi(drawNow=true){
     root.lang=language;root.setAttribute('aria-label',tr('gameLabel'));canvas.setAttribute('aria-label',tr('canvasLabel'));root.querySelector('.nr-touch').setAttribute('aria-label',tr('touch'));
+    root.querySelector('[data-pause-status] small').dataset.i18n=touchDevice()?'resumeTouch':'resume';
     root.querySelectorAll('[data-i18n]').forEach(el=>el.textContent=tr(el.dataset.i18n));
     for(const action of ['jump','slide','dash']){const button=root.querySelector(`[data-act="${action}"]`);button.querySelector('[data-action-label]').textContent=tr(action);button.setAttribute('aria-label',tr(action))}
     for(const action of ['left','right'])root.querySelector(`[data-act="${action}"]`).setAttribute('aria-label',tr(action));
